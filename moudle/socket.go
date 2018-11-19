@@ -4,7 +4,6 @@ package moudle
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"io"
 	"net"
 	"unsafe"
@@ -18,7 +17,6 @@ func socketRead(conn net.Conn)(buf []byte,err error) {
 	sizeReader:=io.LimitReader(conn,intSize)
 	temp:=make([]byte,intSize)
 	sizeReader.Read(temp)
-	fmt.Println(binary.LittleEndian.Uint64(temp))
 	if err!=nil{
 		return nil ,err
 	}
