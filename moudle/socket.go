@@ -4,7 +4,6 @@ package moudle
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"io"
 	"net"
 	"unsafe"
