@@ -4,11 +4,12 @@ package moudle
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/json"
 	"io"
 	"net"
 	"unsafe"
 )
-
+import "../def"
 var intTemp int
 
 const intSize int64=int64(unsafe.Sizeof((intTemp)))
@@ -33,4 +34,21 @@ func socketWrite(conn net.Conn,data []byte)(size int,err error){
 	binary.Write(buf,binary.LittleEndian,data)
 	size,err=conn.Write(buf.Bytes())
 	return size,err
+}
+
+func StructWrite(conn net.Conn,resp def.SocketInterface)(err error){
+	temp,err:=resp.StructToBytes()
+	if err!=nil{
+		return err
+	}
+	_,err=socketWrite(conn,temp)
+	return err
+}
+func StructRead(conn net.Conn,resp interface{})(err error){
+	data,err:=socketRead(conn)
+	if err!=nil{
+		return err
+	}
+	err=json.Unmarshal(data,&resp)
+	return err
 }
