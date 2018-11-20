@@ -9,7 +9,7 @@
 ```json
 #simple problem
 {
- 	"timeLimit":1000,
+ 	  "timeLimit":1000,
     "memorylimit":256,
     "judgelist":[
         {
