@@ -1,12 +1,12 @@
-package listenServer
+package main
 
 import (
-	"../defs"
+	"./defs"
 	"fmt"
 	"net"
 )
 
-func RunListenServer(port string, dispatcheChannel chan <- defs.JudgeTaskWrap) {
+func RunListenServer(port string, dispatcheChannel chan <- JudgeTaskWrap) {
 	fmt.Println("port ", port)
 
 	addr := net.TCPAddr{IP: net.IPv4(127, 0, 0, 1), Port: 8080}
