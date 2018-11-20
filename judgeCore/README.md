@@ -7,11 +7,11 @@
 题目应该将输入和输出文件以及spj(可选)存放到同一目录下，并在同级目录定义problem.json，评测核心依靠problem.jsone的信息进行评测。
 
 ```json
-#simple problem
 {
  	  "timeLimit":1000,
     "memorylimit":256,
-    "judgelist":[
+    "judgelist":
+    [
         {
             "input":"test1.in",
             "output":"output1.out"
