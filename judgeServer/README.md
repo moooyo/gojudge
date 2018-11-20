@@ -25,9 +25,9 @@ type SubmitTaskStatus int
 
 const (
     OK    		SubmitTaskStatus = 0
-	ERROR 		SubmitTaskStatus = 1
-    WAITING 	SubmitTaskStatus = 2
-    JUDGING  	SubmitTaskStatus = 3
+    ERROR 		SubmitTaskStatus = 1
+    WAITING 	        SubmitTaskStatus = 2
+    JUDGING  	        SubmitTaskStatus = 3
 )
 
 type SubmitTaskWrap struct {
