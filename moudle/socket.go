@@ -44,6 +44,7 @@ func StructWrite(conn net.Conn,resp def.SocketInterface)(err error){
 	_,err=socketWrite(conn,temp)
 	return err
 }
+
 func StructRead(conn net.Conn,resp interface{})(err error){
 	data,err:=socketRead(conn)
 	if err!=nil{
