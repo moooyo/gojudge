@@ -4,6 +4,11 @@ import (
 	"fmt"
 )
 
+type DispatcherConfig struct {
+    QueueSize   int     `json:"queueSize"`
+    DispatchChannelSize int `json:"channelSize"`
+}
+
 type Dispatcher struct {
 	Tasks [] SubmitTaskWrap
 }

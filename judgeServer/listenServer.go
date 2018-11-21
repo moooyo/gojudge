@@ -1,10 +1,15 @@
 package main
 
 import (
-	"./defs"
 	"fmt"
 	"net"
 )
+
+
+type ListenServerConfig struct {
+    Port    int     `json:"port"`
+}
+
 
 func RunListenServer(port string, dispatcheChannel chan <- SubmitTaskWrap) {
 	fmt.Println("port ", port)
