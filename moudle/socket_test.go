@@ -2,13 +2,12 @@ package  moudle
 
 import (
 	"../def"
-	"encoding/json"
 	"net"
 	"reflect"
 	"testing"
 )
 
-const count int  =  1000
+const count int  =  10000
 const addr  string = "127.0.0.1:8080"
 
 func StartTestServer(addr string, sync chan <- int) {
@@ -24,12 +23,11 @@ func StartTestServer(addr string, sync chan <- int) {
 			panic(err)
 		}
 		go func(conn net.Conn) {
+            socket := NewSocket(conn)
 			for i := 0; i < count; i++ {
-				data, _ := socketRead(conn)
 				var resp def.Submit
-				json.Unmarshal(data, &resp)
-				data, _ = resp.StructToBytes()
-				socketWrite(conn, data)
+                socket.StructRead(&resp)
+                socket.StructWrite(&resp)
 			}
 			conn.Close()
 		}(conn)
@@ -44,6 +42,7 @@ func TestReadWriteStruct (t *testing.T) {
 
 	<- sync
 	conn, _ := net.Dial("tcp", addr)
+    socket := NewSocket(conn)
 	for i := 0; i < count; i++ {
 		var test = def.Submit{
 			SubmitID:   i,
@@ -52,14 +51,14 @@ func TestReadWriteStruct (t *testing.T) {
 			Language:   i,
 		}
 
-		data, _ := test.StructToBytes()
-		socketWrite(conn, data)
-		data, _ = socketRead(conn)
+        socket.StructWrite(&test)
+        
+
 
 		var resp def.Submit
 
-		json.Unmarshal(data ,&resp)
-
+        socket.StructRead(&resp)
+    
 		if !reflect.DeepEqual(resp, test) {
 			t.Error("send not equal recv")
 		}

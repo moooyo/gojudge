@@ -6,50 +6,64 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"io"
+    "bufio"
 	"net"
 	"unsafe"
 )
 import "../def"
 var intTemp int
-
 const intSize int64=int64(unsafe.Sizeof((intTemp)))
 
-func socketRead(conn net.Conn)(buf []byte,err error) {
-	sizeReader:=io.LimitReader(conn,intSize)
+type Socket struct {
+    reader *bufio.Reader
+    writer *bufio.Writer
+    conn   net.Conn
+}
+
+func NewSocket(conn net.Conn) *Socket {
+    return &Socket {
+        reader: bufio.NewReader(conn),
+        writer: bufio.NewWriter(conn),
+        conn: conn,
+    }
+}
+
+func (socket *Socket) SocketRead() (data []byte, err error) {
 	temp:=make([]byte,intSize)
-	sizeReader.Read(temp)
+    socket.reader.Read(temp)
 	if err!=nil{
 		return nil ,err
 	}
-	dataReader:=io.LimitReader(conn,int64(binary.LittleEndian.Uint64(temp)))
-	buf = make([]byte, binary.LittleEndian.Uint64(temp))
+	dataReader:=io.LimitReader(socket.reader,int64(binary.LittleEndian.Uint64(temp)))
+    buf := make([]byte, binary.LittleEndian.Uint64(temp))
 	_,err=dataReader.Read(buf)
 	return buf,err
 }
 
-func socketWrite(conn net.Conn,data []byte)(size int,err error){
-	size=len(data)
+func (socket *Socket) SocketWrite(data []byte) (size int, err error) {
+    size = len(data)
 	var buf=bytes.NewBuffer(make([]byte,0))
 	binary.Write(buf,binary.LittleEndian, int64(size))
 	binary.Write(buf,binary.LittleEndian,data)
-	size,err=conn.Write(buf.Bytes())
+	size,err= socket.writer.Write(buf.Bytes())
+    socket.writer.Flush()
 	return size,err
 }
 
-func StructWrite(conn net.Conn,resp def.SocketInterface)(err error){
+func (socket *Socket) StructWrite(resp def.SocketInterface)(err error){
 	temp,err:=resp.StructToBytes()
 	if err!=nil{
 		return err
 	}
-	_,err=socketWrite(conn,temp)
+	_,err= socket.SocketWrite(temp)
 	return err
 }
 
-func StructRead(conn net.Conn,resp interface{})(err error){
-	data,err:=socketRead(conn)
+func (socket *Socket) StructRead(resp interface{})(err error){
+	data,err:= socket.SocketRead()
 	if err!=nil{
 		return err
 	}
-	err=json.Unmarshal(data,&resp)
-	return err
+	err =json.Unmarshal(data,&resp)
+	return nil
 }

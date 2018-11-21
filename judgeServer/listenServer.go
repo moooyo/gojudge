@@ -10,25 +10,37 @@ type ListenServerConfig struct {
     Port    int     `json:"port"`
 }
 
+type ListenServer struct {
+    listener    net.Listener
+}
 
-func RunListenServer(port string, dispatcheChannel chan <- SubmitTaskWrap) {
-	fmt.Println("port ", port)
 
-	addr := net.TCPAddr{IP: net.IPv4(127, 0, 0, 1), Port: 8080}
-	listener, err := net.ListenTCP("tcp", &addr)
-	if err != nil {
-		fmt.Println(err)
-	}
 
-	for {
-		conn, err := listener.AcceptTCP()
-		go func(conn *net.TCPConn) {
-			fmt.Println(conn, err)
-			buf := make([]byte, 100)
-			n, _ := conn.Read(buf)
-			fmt.Println("read ", n)
-			fmt.Println(string(buf[:n]))
-			conn.Close()
-		}(conn)
-	}
+func (listenServer *ListenServer) InitServer(listener net.Listener) error {
+    listenServer.listener = listener
+    return nil
+}
+
+func (listenServer *ListenServer) AcceptConn(conn net.Conn) {
+		go func(conn net.Conn) {
+            for {
+                buf := make([]byte, 100)
+                n, err := conn.Read(buf)
+                if err != nil {
+                    conn.Close()
+                    break
+                }
+                fmt.Print(string(buf[:n]))
+            }
+            fmt.Println("conn Close")
+            conn.Close()
+        }(conn)
+}
+
+func (listenServer *ListenServer) HandleAcceptErorr() error {
+    return nil
+}
+
+func (listenServer *ListenServer) ExitServer() {
+
 }

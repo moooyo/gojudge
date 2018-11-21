@@ -2,7 +2,7 @@ package main
 
 import (
     "flag"
-    "fmt"
+    "strconv"
 )
 
 
@@ -20,6 +20,7 @@ func main() {
     if err != nil {
         panic(err)
     }
-    
-    fmt.Println(config)
+    var listenServer ListenServer
+    addr := "127.0.0.1:" + strconv.Itoa(config.ListenConfig.Port)
+    RunServer(&listenServer, addr)
 }
