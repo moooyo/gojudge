@@ -77,7 +77,13 @@ func RunJudge(submit *def.Submit,problem *def.Problem,conn net.Conn)(err error){
 	default:
 		return fmt.Errorf("gojudge not support this language")
 	case def.CLanguage:
-		err=judge.GccJudge(submit,problem,conn)
+		err=judge.ElfJudge(problem,conn)
+	case def.Cpp11Language:
+		err=judge.ElfJudge(problem,conn)
+	case def.Cpp17Language:
+		err=judge.ElfJudge(problem,conn)
+	case def.Cpp99Language:
+		err=judge.ElfJudge(problem,conn)
 	}
-
+	return
 }
