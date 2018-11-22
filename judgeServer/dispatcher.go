@@ -1,25 +1,37 @@
 package main
 
-import (
-	"fmt"
-)
-
 type DispatcherConfig struct {
-    QueueSize   int     `json:"queueSize"`
-    DispatchChannelSize int `json:"channelSize"`
+	QueueSize           int `json:"queueSize"`
+	DispatchChannelSize int `json:"channelSize"`
+	Ndocker             int `json:"ndocker"`
 }
 
 type Dispatcher struct {
-	Tasks [] SubmitTaskWrap
+	Tasks           []SubmitTaskWrap
+	Ndocker         int
+	dispatchChannel chan SubmitTaskWrap
+	processChannel  <-chan SubmitTaskWrap
 }
 
+func NewDispatcher(config DispatcherConfig, dispatchChannel chan SubmitTaskWrap, processChannel <-chan SubmitTaskWrap) *Dispatcher {
+	return &Dispatcher{
+		Tasks:           make([]SubmitTaskWrap, config.QueueSize),
+		Ndocker:         config.Ndocker,
+		dispatchChannel: dispatchChannel,
+		processChannel:  processChannel,
+	}
+}
 
-func RunDispatcher(port string, dispatchChannel chan SubmitTaskWrap) {
-	dispatcher := Dispatcher{make([] SubmitTaskWrap, 10)}
+func (dispatcher *Dispatcher) Run() {
 	for {
-		task := <- dispatchChannel
-		dispatcher.Tasks = append(dispatcher.Tasks, task)
-		fmt.Println("dispatch", task)
-		fmt.Println(task)
+		select {
+		case _ = <-dispatcher.dispatchChannel:
+			{
+			}
+		case _ = <-dispatcher.processChannel:
+			{
+			}
+		}
+		// do dispatch
 	}
 }
