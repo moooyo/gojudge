@@ -1,26 +1,23 @@
 package main
 
 import (
-    "flag"
-    "strconv"
+	"flag"
 )
-
 
 var configPath string
 
 func init() {
-    flag.StringVar(&configPath, "configfile", "./config.json", "config file of judgeServer")
+	flag.StringVar(&configPath, "configfile", "./config.json", "config file of judgeServer")
 }
 
 func main() {
-    flag.Parse()
+	flag.Parse()
 
-    config, err := ParseConfig(configPath)
+	config, err := ParseConfig(configPath)
 
-    if err != nil {
-        panic(err)
-    }
-    var listenServer ListenServer
-    addr := "127.0.0.1:" + strconv.Itoa(config.ListenConfig.Port)
-    RunServer(&listenServer, addr)
+	if err != nil {
+		panic(err)
+	}
+
+	RunSystem(config)
 }
