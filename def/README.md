@@ -73,20 +73,20 @@ type JudgingMsg struct{
 | Language | 评测语言 |
 | -------- | -------- |
 | 0        | c        |
-| 1        | c++ 99   |
-| 2        | c++ 11   |
-| 3        | c++ 17   |
+| 1        | cpp 99   |
+| 2        | cpp 11   |
+| 3        | cpp 17   |
 | 4        | Java     |
 
-| ErrCode | 错误码                  |
-| ------- | ----------------------- |
-| 0       | Judging                 |
-| 1       | Accept                  |
-| 2       | WrongAnwser             |
-| 3       | ComplierError           |
-| 4       | TimeLimiteError         |
-| 5       | ComplierTimeLimiteError |
-| 6       | MemoryLimiteError       |
-| 7       | OutputTooMuch           |
-| -1      | OtherError              |
+| ErrCode | 错误码                 |
+| ------- | ---------------------- |
+| 0       | JudgingResponseCode    |
+| 1       | AcceptResponseCode     |
+| 2       | WrongAnwser            |
+| 3       | ComplierError          |
+| 4       | TimeLimitError         |
+| 5       | ComplierTimeLimitError |
+| 6       | MemoryLimitError       |
+| 7       | OutputLimitError       |
+| -1      | OtherError             |
 
