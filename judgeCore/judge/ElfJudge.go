@@ -20,7 +20,6 @@ const (
 )
 
 func ElfJudge(judgeFile string,problem *def.Problem,conn net.Conn)(err error){
-	fmt.Printf("test : %v\n",judgeFile)
 	filename:=judgeFile
 	list:=problem.JudgeList
 	for i,node:= range list{
