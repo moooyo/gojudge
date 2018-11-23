@@ -13,7 +13,7 @@ var testJudge =[]struct{
 	wantErr error
 }{
 	{
-		"./test/acOutput.out",
+		"./test/ac.out",
 		"./test/output.out",
 		def.AcceptCode,
 		fmt.Errorf(""),
@@ -25,7 +25,7 @@ var testJudge =[]struct{
 		fmt.Errorf("WrongAnwser"),
 	},
 	{
-		"./test/outputLimitError.out",
+		"./test/ole.out",
 		"./test/output.out",
 		def.OuputLimitError,
 		fmt.Errorf("outputSize larger than stdOutput"),

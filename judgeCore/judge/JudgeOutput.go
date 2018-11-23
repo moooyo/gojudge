@@ -9,7 +9,13 @@ import (
 import "../../def"
 func judge(output,stdOutput string)(errno int,err error){
 	outputinfo,err:=os.Stat(output)
+	if err!=nil{
+		fmt.Printf("%v not found!\n",output)
+	}
 	stdOutputinfo,err:=os.Stat(stdOutput)
+	if err!=nil{
+		fmt.Printf("%v not found\n",stdOutput)
+	}
 	if outputinfo.Size()>stdOutputinfo.Size()+1{
 		return def.OuputLimitError,fmt.Errorf("outputSize larger than stdOutput")
 	}
