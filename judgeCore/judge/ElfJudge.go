@@ -71,5 +71,6 @@ func buildResponse(resp *def.Response,code int ,msg string) bool{
 	return resp.ErrCode==def.AcceptCode
 }
 func sendResponse(conn net.Conn,resp *def.Response){
-	moudle.StructWrite(conn,resp)
+	socket := moudle.NewSocket(conn)
+	socket.WriteStruct(resp)
 }

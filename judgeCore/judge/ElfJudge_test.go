@@ -54,7 +54,8 @@ func TestElfJudge(t *testing.T) {
 			coon, _ := listen.Accept()
 			for {
 				var resp def.Response
-				moudle.StructRead(coon, &resp)
+				socket:=moudle.NewSocket(coon)
+				socket.ReadStruct(&resp)
 				if wantCode!=resp.ErrCode {
 					log.Fatalf("test %d : want %d got %d\n",judgeItem,wantCode,resp.ErrCode)
 				}
