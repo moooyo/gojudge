@@ -1,6 +1,9 @@
 package complie
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 import "../../def"
 
 var submit def.Submit
@@ -34,7 +37,8 @@ func TestGccComplie(t *testing.T) {
 	for _,ts := range test{
 		submit.CodeSource=ts.testFile
 		err:=GccComplie(&submit)
-		var got bool = err==nil
+		os.Remove("submit")
+		var got = err==nil
 		if got!=ts.want{
 			t.Errorf("test FAILD %s ",ts.testFile)
 		}

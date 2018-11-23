@@ -1,0 +1,14 @@
+{
+    "processConfig": {
+        "port": 8081
+    },
+
+    "listenConfig": {
+        "port": 8080
+    },
+    "dispatcherConfig": {
+        "queueSize": 1024,
+        "channelSize": 1024,
+        "ndocker": 8
+    }
+}

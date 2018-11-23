@@ -5,19 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 )
+import "../def"
 
-type Problem struct{
-	TimeLimit 		int 			`timelimit`
-	MemoryLimit 	int 			`memorylimit`
-	JudgeList		[]JudgeNode		`judgelist`
-	property		int 			`property`
-}
-type JudgeNode struct{
-	Input		string		`input`
-	Output		string 		`output`
-}
-
-func ParseProblemFile(filename string,problem *Problem)(err error){
+func ParseProblemFile(filename string,problem *def.Problem)(err error){
 	file,err:=ioutil.ReadFile(filename)
 	if err!=nil{
 		return

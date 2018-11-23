@@ -1,10 +1,10 @@
 package main
 
 import "testing"
-
+import "../def"
 func TestParseProblemFile(t *testing.T) {
-	filename:="test.json"
-	var problem Problem
+	filename:="example.json"
+	var problem def.Problem
 	err:=ParseProblemFile(filename,&problem)
 	if err!=nil{
 		t.Errorf("%v",err)
