@@ -29,6 +29,10 @@ var testElf=[]struct{
 		"./ole",
 		def.OuputLimitError,
 	},
+	{
+		"./re",
+		def.RunTimeError,
+	},
 }
 const addr  string = "127.0.0.1:8888"
 func TestElfJudge(t *testing.T) {
