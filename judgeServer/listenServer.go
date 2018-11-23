@@ -18,7 +18,7 @@ type ListenServer struct {
 
 func NewListenServer(config ListenServerConfig, dispatcherChannel chan<- SubmitTaskWrap) *ListenServer {
 	return &ListenServer{
-		addr:              "127.0.0.1:" + strconv.Itoa(config.Port),
+		addr:              "0.0.0.0:" + strconv.Itoa(config.Port),
 		dispatcherChannel: dispatcherChannel,
 	}
 }
