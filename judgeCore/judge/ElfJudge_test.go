@@ -33,6 +33,10 @@ var testElf=[]struct{
 		"./test/re",
 		def.RunTimeError,
 	},
+	{
+		"./test/mle",
+		def.MemoryLimitError,
+	},
 }
 const addr  string = "127.0.0.1:8888"
 func TestElfJudge(t *testing.T) {
@@ -62,7 +66,7 @@ func TestElfJudge(t *testing.T) {
 					var resp def.Response
 					socket := moudle.NewSocket(coon)
 					socket.ReadStruct(&resp)
-					//fmt.Printf("%v\n",resp)
+					fmt.Printf("%v\n",resp)
 					wantCode := testElf[rs].want
 					judgeItem := rs + 1
 					if wantCode != resp.ErrCode {
