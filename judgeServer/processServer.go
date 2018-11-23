@@ -21,7 +21,7 @@ func NewProcessServer(config ProcessServerConfig, processChannel chan SubmitTask
 	return &ProcessServer{
 		taskMap:        make(map[int]SubmitTaskWrap),
 		processChannel: processChannel,
-		addr:           "127.0.0.1:" + strconv.Itoa(config.Port),
+		addr:           "0.0.0.0:" + strconv.Itoa(config.Port),
 	}
 }
 
