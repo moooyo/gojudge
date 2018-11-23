@@ -10,7 +10,7 @@ import "../../def"
 func judge(output,stdOutput string)(errno int,err error){
 	outputinfo,err:=os.Stat(output)
 	stdOutputinfo,err:=os.Stat(stdOutput)
-	if outputinfo.Size()>stdOutputinfo.Size(){
+	if outputinfo.Size()>stdOutputinfo.Size()+2{
 		return def.OuputLimitError,fmt.Errorf("outputSize larger than stdOutput")
 	}
 	out,_:=os.OpenFile(output,os.O_RDONLY,0777)
@@ -22,19 +22,17 @@ func judge(output,stdOutput string)(errno int,err error){
 	for {
 		size1,err1:=out.Read(r1)
 		size2,err2:=out2.Read(r2)
-		if size1!=size2{
-			fmt.Printf("%d!=%d",size1,size2)
+		if (err1==io.EOF||err2==io.EOF)&&err1!=err2{
 			return def.WrongAnwser,fmt.Errorf("WrongAnwser")
 		}
-		if (err1==io.EOF||err2==io.EOF)&&err1!=err2{
+		if size1!=size2{
+		//	fmt.Printf("%d!=%d",size1,size2)
 			return def.WrongAnwser,fmt.Errorf("WrongAnwser")
 		}
 		if bytes.Equal(r1,r2)!=true{
 			return def.WrongAnwser,fmt.Errorf("WrongAnwser")
 		}
-		if err1==io.EOF||err2==io.EOF{
-			break
-		}
+
 	}
 	return def.AcceptCode,nil
 }

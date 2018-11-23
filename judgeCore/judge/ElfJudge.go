@@ -13,20 +13,24 @@ import (
 )
 
 const(
-	filename string="./submit"
 	signlParse string="signal: %s"
 )
 const (
 	TimeLimitError="killed"
 )
 
-func ElfJudge(problem *def.Problem,conn net.Conn)(err error){
+func ElfJudge(judgeFile string,problem *def.Problem,conn net.Conn)(err error){
+	fmt.Printf("test : %v\n",judgeFile)
+	filename:=judgeFile
 	list:=problem.JudgeList
 	for i,node:= range list{
 		inputFileName:=node.Input
 		outputFileName:="judge_"+strconv.Itoa(i)+".output"
 		ct:=func() bool{
 			var resp def.Response
+			resp.JudgeNode=i+1
+			resp.AllNode=len(problem.JudgeList)
+
 			defer sendResponse(conn,&resp)
 			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(problem.TimeLimit)*time.Millisecond)
 			defer cancel()
@@ -36,6 +40,7 @@ func ElfJudge(problem *def.Problem,conn net.Conn)(err error){
 				return buildResponse(&resp,def.OtherError,
 					fmt.Sprintf("open file error:%v", err))
 			}
+			os.Remove(outputFileName)
 			cmd.Stdout, err = os.OpenFile(outputFileName, os.O_CREATE|os.O_WRONLY, 0777)
 			if err != nil {
 				return buildResponse(&resp,def.OtherError,
@@ -45,7 +50,6 @@ func ElfJudge(problem *def.Problem,conn net.Conn)(err error){
 			var signalErr string
 			if err != nil {
 				fmt.Sscanf(err.Error(), signlParse, &signalErr)
-				fmt.Printf("%s\n%v\n", signalErr, err)
 				switch signalErr {
 				default:
 					return buildResponse(&resp,def.OtherError,fmt.Sprintf("%v",err))

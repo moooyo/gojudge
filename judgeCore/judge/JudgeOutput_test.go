@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 import "../../def"
-var test =[]struct{
+var testJudge =[]struct{
 	output string
 	stdOutput string
 	wantCode int
@@ -31,8 +31,8 @@ var test =[]struct{
 		fmt.Errorf("outputSize larger than stdOutput"),
 	},
 }
-func TestElfJudge(t *testing.T) {
-	for _,node:=range test{
+func TestJudge(t *testing.T) {
+	for _,node:=range testJudge{
 		code,err:=judge(node.output,node.stdOutput)
 		if code!=node.wantCode||equal.Equal(err,node.wantErr)!=true{
 			t.Errorf("got %d want %d",code,node.wantCode)
