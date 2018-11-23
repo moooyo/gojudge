@@ -16,7 +16,7 @@ var testJudge =[]struct{
 		"acOutput.out",
 		"output.out",
 		def.AcceptCode,
-		nil,
+		fmt.Errorf(""),
 	},
 	{
 		"wa.out",
