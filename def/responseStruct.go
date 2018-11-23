@@ -5,10 +5,11 @@ import (
 )
 
 type Response struct {
-	ErrCode   int    `json:"errCode"`
-	JudgeNode int    `json:"judgeNode"`
-	AllNode   int    `json:"allNode"`
-	Msg       []byte `json:"msg"`
+	ErrCode   	int    	`json:"errCode"`
+	JudgeNode 	int    	`json:"judgeNode"`
+	AllNode   	int    	`json:"allNode"`
+	TimeCost	int 	`json:"timecost"`
+	Msg       	[]byte 	`json:"msg"`
 }
 
 const(
