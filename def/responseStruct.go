@@ -5,9 +5,12 @@ import (
 )
 
 type Response struct {
-	ErrCode int `json:"errCode"`
-	Msg []byte `json:"msg"`
+	ErrCode   int    `json:"errCode"`
+	JudgeNode int    `json:"judgeNode"`
+	AllNode   int    `json:"allNode"`
+	Msg       []byte `json:"msg"`
 }
+
 const(
 	JudgingResponseCode=iota
 	AcceptCode
