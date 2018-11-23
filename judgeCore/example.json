@@ -3,7 +3,7 @@
   "memorylimit":256,
   "judgelist":[
     {
-      "input":"test1.in",
+      "input":"input1.in",
       "output":"output1.out"
     },
     {

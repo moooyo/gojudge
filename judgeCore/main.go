@@ -12,6 +12,7 @@ import (
 import "../def"
 import "../moudle"
 import "./complie"
+import "./judge"
 var port *string=flag.String("port","7777","JudgeServerPort")
 var submitId *int=flag.Int("submitID",0,"submitID")
 var adress *string=flag.String("adress","127.0.0.1","JugdeServerAdress")
@@ -42,7 +43,7 @@ func main(){
 	}
 
 	//complie SourceCode
-	err=Complie(&submit)
+	problem,err:=Complie(&submit)
 	var resp def.Response
 	if err!=nil{
 		//todo
@@ -53,11 +54,9 @@ func main(){
 	}
 
 	//Run
-
 }
-func Complie(submit *def.Submit)(err error){
+func Complie(submit *def.Submit)(problem def.Problem,err error){
 	filename:=BasePath+string(submit.ProblemID)+"/problem.json"
-	var problem Problem
 	err=ParseProblemFile(filename,&problem)
 	if err!=nil{
 		log.Fatal(fmt.Errorf("Parse problem %s FAILD",filename))
@@ -66,10 +65,25 @@ func Complie(submit *def.Submit)(err error){
 	//complie
 	switch submit.Language{
 	default:
-		return fmt.Errorf("gojudge not support this language")
+		return problem,fmt.Errorf("gojudge not support this language")
 	case def.CLanguage:
 		err=complie.GccComplie(submit)
 	}
 	return
 }
 
+func RunJudge(submit *def.Submit,problem *def.Problem,conn net.Conn)(err error){
+	switch submit.Language {
+	default:
+		return fmt.Errorf("gojudge not support this language")
+	case def.CLanguage:
+		err=judge.ElfJudge(problem,conn)
+	case def.Cpp11Language:
+		err=judge.ElfJudge(problem,conn)
+	case def.Cpp17Language:
+		err=judge.ElfJudge(problem,conn)
+	case def.Cpp99Language:
+		err=judge.ElfJudge(problem,conn)
+	}
+	return
+}
