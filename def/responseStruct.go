@@ -12,7 +12,7 @@ type Response struct {
 }
 
 const(
-	JudgingResponseCode=iota
+	JudgeFinished=iota
 	AcceptCode
 	WrongAnwser
 	ComplierError
