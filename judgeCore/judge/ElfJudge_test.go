@@ -14,23 +14,23 @@ var testElf=[]struct{
 	want int
 }{
 	{
-		"./ac",
+		"./test/ac",
 		def.AcceptCode,
 	},
 	{
-		"./wa",
+		"./test/wa",
 		def.WrongAnwser,
 	},
 	{
-		"./tle",
+		"./test/tle",
 		def.TimeLimitError,
 	},
 	{
-		"./ole",
+		"./test/ole",
 		def.OuputLimitError,
 	},
 	{
-		"./re",
+		"./test/re",
 		def.RunTimeError,
 	},
 }
@@ -41,8 +41,8 @@ func TestElfJudge(t *testing.T) {
 	problem.MemoryLimit=256
 	problem.JudgeList=[]def.JudgeNode{
 		{
-			"input.in",
-			"output.out",
+			"./test/input.in",
+			"./test/output.out",
 		},
 	}
 	syn := make(chan struct {},0)

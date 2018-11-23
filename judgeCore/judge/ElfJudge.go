@@ -16,7 +16,8 @@ const(
 	signlParse string="signal: %s"
 )
 const (
-	TimeLimitError="signal: killed"
+	TimeLimitError	=	"signal: killed"
+	RuntimeError	=	"signal: segmentation fault (core dumped)"
 )
 
 func ElfJudge(judgeFile string,problem *def.Problem,conn net.Conn)(err error){
@@ -56,11 +57,14 @@ func ElfJudge(judgeFile string,problem *def.Problem,conn net.Conn)(err error){
 			}
 			err = cmd.Run()
 			if err != nil {
+				//fmt.Printf("%v\n",err)
 				switch err.Error() {
 				default:
 					return buildResponse(&resp,def.OtherError,fmt.Sprintf("%v",err))
 				case TimeLimitError:
 					return buildResponse(&resp,def.TimeLimitError,"")
+				case RuntimeError:
+					return buildResponse(&resp,def.RunTimeError,RuntimeError)
 				}
 			}
 			code,err := judge(outputFileName,node.Output)

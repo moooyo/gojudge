@@ -1,0 +1,12 @@
+{
+  "gcc": {
+    "argv":[
+        "gcc",
+        "-osubmit",
+        "submit.c",
+        "-O2",
+        "-std=c99"
+      ],
+    "timelimit":5000
+  }
+}
