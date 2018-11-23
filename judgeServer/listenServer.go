@@ -1,7 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"../def"
+	"../moudle"
+	"log"
 	"net"
 	"strconv"
 )
@@ -29,10 +31,19 @@ func (listenServer *ListenServer) InitServer(listener net.Listener) error {
 }
 
 func (listenServer *ListenServer) AcceptConn(conn net.Conn) {
-	go func(conn net.Conn) {
-		fmt.Println("listenServer incoming")
-		conn.Close()
-	}(conn)
+	socket := moudle.NewSocket(conn)
+	go func(socket *moudle.Socket) {
+		var submit def.Submit
+		err := socket.ReadStruct(&submit)
+		if err != nil {
+			log.Println(err)
+			socket.Close()
+			return
+		}
+		log.Println("New submit from web front: ", submit)
+		listenServer.dispatcherChannel <- WrapSubmit(&submit)
+		socket.Close()
+	}(socket)
 }
 
 func (listenServer *ListenServer) HandleAcceptErorr() error {
