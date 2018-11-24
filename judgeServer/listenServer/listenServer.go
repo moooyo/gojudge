@@ -1,26 +1,26 @@
-package main
+package listenServer
 
 import (
-	"../def"
-	"../moudle"
+	"../../def"
+	"../../moudle"
+	"../submitwrap"
 	"log"
 	"net"
-	"strconv"
 )
 
 type ListenServerConfig struct {
-	Port int `json:"port"`
+	ListenAddr string `json:"listenAddr"`
 }
 
 type ListenServer struct {
 	listener          net.Listener
 	addr              string
-	dispatcherChannel chan<- SubmitTaskWrap
+	dispatcherChannel chan<- submitwrap.SubmitTaskWrap
 }
 
-func NewListenServer(config ListenServerConfig, dispatcherChannel chan<- SubmitTaskWrap) *ListenServer {
+func NewListenServer(config ListenServerConfig, dispatcherChannel chan<- submitwrap.SubmitTaskWrap) *ListenServer {
 	return &ListenServer{
-		addr:              "0.0.0.0:" + strconv.Itoa(config.Port),
+		addr:              config.ListenAddr,
 		dispatcherChannel: dispatcherChannel,
 	}
 }
@@ -31,22 +31,25 @@ func (listenServer *ListenServer) InitServer(listener net.Listener) error {
 }
 
 func (listenServer *ListenServer) AcceptConn(conn net.Conn) {
+	log.Println("listenServer incoming")
 	socket := moudle.NewSocket(conn)
 	go func(socket *moudle.Socket) {
 		var submit def.Submit
 		err := socket.ReadStruct(&submit)
 		if err != nil {
-			log.Println(err)
+			log.Println("AcceptConn read ", err)
 			socket.Close()
 			return
 		}
-		log.Println("New submit from web front: ", submit)
-		listenServer.dispatcherChannel <- WrapSubmit(&submit)
+		log.Println("New submit from web front: ", &submit)
+		log.Println(submit.CodeSource)
 		socket.Close()
+		listenServer.dispatcherChannel <- submitwrap.WrapSubmit(&submit)
 	}(socket)
 }
 
 func (listenServer *ListenServer) HandleAcceptErorr() error {
+	log.Println("HandleAcceptErorr error")
 	return nil
 }
 

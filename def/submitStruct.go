@@ -41,5 +41,5 @@ func (submit *Submit) String() string {
 	default:
 		language = "unkonw"
 	}
-	return fmt.Sprintf("submitID: %d problemId: %d language: %d", submit.SubmitID, submit.ProblemID, language)
+	return fmt.Sprintf("submitID: %d problemId: %d language: %s", submit.SubmitID, submit.ProblemID, language)
 }
