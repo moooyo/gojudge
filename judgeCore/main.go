@@ -14,12 +14,11 @@ import "../moudle"
 import "./complie"
 import "./judge"
 var port *string=flag.String("port","7777","JudgeServerPort")
-var submitId *int=flag.Int("submitID",0,"submitID")
+var submitId *int=flag.Int("submitID",50,"submitID")
 var adress *string=flag.String("adress","127.0.0.1","JugdeServerAdress")
 const BasePath="./problem"
 const CompliePath="./submit"
 func main(){
-	//parse args
 	flag.Parse()
 	serverConn,err:=net.Dial("tcp",*adress+":"+*port)
 	socket := moudle.NewSocket(serverConn)
@@ -27,18 +26,17 @@ func main(){
 	if err!=nil {
 		log.Fatal(err)
 	}
-
-	buf:=bytes.NewBuffer(make([]byte,0))
-
-	binary.Write(buf,binary.BigEndian,unsafe.Sizeof(*submitId))
-	binary.Write(buf,binary.BigEndian,*submitId)
+	buf:=new(bytes.Buffer)
+	binary.Write(buf,binary.LittleEndian,uint64(unsafe.Sizeof(*submitId)))
+	binary.Write(buf,binary.LittleEndian,uint64(*submitId))
 	_,err=socket.Write(buf.Bytes())
 	if err!=nil{
 		log.Fatal(err)
 	}
 	buf.Reset()
 	var submit def.Submit
-	err=socket.WriteStruct(&submit)
+	err=socket.ReadStruct(&submit)
+
 	if err!=nil{
 		log.Fatal(err)
 	}
