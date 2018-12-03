@@ -7,7 +7,7 @@ import (
 import "../../def"
 
 var submit def.Submit
-var test = []struct {
+var testGcc = []struct {
 	testFile []byte
 	want     bool
 }{
@@ -35,7 +35,7 @@ func TestGccComplie(t *testing.T) {
 		nil,
 		0,
 	}
-	for _, ts := range test {
+	for _, ts := range testGcc {
 		submit.CodeSource = ts.testFile
 		err := GccComplie(&submit)
 		os.Remove("submit")
