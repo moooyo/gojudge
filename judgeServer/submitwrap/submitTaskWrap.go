@@ -8,10 +8,10 @@ import (
 type SubmitTaskStatus int
 
 const (
-	OK      SubmitTaskStatus = 0
-	ERROR   SubmitTaskStatus = 1
-	WAITING SubmitTaskStatus = 2
-	JUDGING SubmitTaskStatus = 3
+	OK      SubmitTaskStatus = iota
+	ERROR
+	WAITING
+	JUDGING
 )
 
 type SubmitTaskWrap struct {
