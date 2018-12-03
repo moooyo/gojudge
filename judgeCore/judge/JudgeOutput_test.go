@@ -6,11 +6,12 @@ import (
 	"testing"
 )
 import "../../def"
-var testJudge =[]struct{
-	output string
+
+var testJudge = []struct {
+	output    string
 	stdOutput string
-	wantCode int
-	wantErr error
+	wantCode  int
+	wantErr   error
 }{
 	{
 		"./test/ac.out",
@@ -31,11 +32,12 @@ var testJudge =[]struct{
 		fmt.Errorf("outputSize larger than stdOutput"),
 	},
 }
+
 func TestJudge(t *testing.T) {
-	for _,node:=range testJudge{
-		code,err:=judge(node.output,node.stdOutput)
-		if code!=node.wantCode||equal.Equal(err,node.wantErr)!=true{
-			t.Errorf("got %d want %d",code,node.wantCode)
+	for _, node := range testJudge {
+		code, err := judge(node.output, node.stdOutput)
+		if code != node.wantCode || equal.Equal(err, node.wantErr) != true {
+			t.Errorf("got %d want %d", code, node.wantCode)
 		}
 	}
 }

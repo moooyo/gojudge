@@ -9,9 +9,9 @@ import (
 import "../../def"
 import "../../moudle"
 
-var testElf=[]struct{
+var testElf = []struct {
 	filename string
-	want int
+	want     int
 }{
 	{
 		"./test/ac",
@@ -38,24 +38,26 @@ var testElf=[]struct{
 		def.MemoryLimitError,
 	},
 }
-const addr  string = "127.0.0.1:8888"
+
+const addr string = "127.0.0.1:8888"
+
 func TestElfJudge(t *testing.T) {
 	var problem def.Problem
-	problem.TimeLimit=1000
-	problem.MemoryLimit=256
-	problem.JudgeList=[]def.JudgeNode{
+	problem.TimeLimit = 1000
+	problem.MemoryLimit = 256
+	problem.JudgeList = []def.JudgeNode{
 		{
 			"./test/input.in",
 			"./test/output.out",
 		},
 	}
-	syn := make(chan struct {},0)
-	testData:=make(chan int,0)
+	syn := make(chan struct{}, 0)
+	testData := make(chan int, 0)
 	go func() {
-		listen,err:=net.Listen("tcp",addr)
+		listen, err := net.Listen("tcp", addr)
 		syn <- struct{}{}
-		if err!=nil{
-			fmt.Printf("%v",err)
+		if err != nil {
+			fmt.Printf("%v", err)
 		}
 		for {
 			rs := <-testData
@@ -66,7 +68,7 @@ func TestElfJudge(t *testing.T) {
 					var resp def.Response
 					socket := moudle.NewSocket(coon)
 					socket.ReadStruct(&resp)
-					fmt.Printf("%v\n",resp)
+					fmt.Printf("%v\n", resp)
 					wantCode := testElf[rs].want
 					judgeItem := rs + 1
 					if wantCode != resp.ErrCode {
@@ -83,14 +85,14 @@ func TestElfJudge(t *testing.T) {
 
 		}
 	}()
-	<- syn
-	for i,node:= range testElf {
+	<-syn
+	for i, node := range testElf {
 		func() {
-		//	fmt.Printf("i=%d\n",i+1)
+			//	fmt.Printf("i=%d\n",i+1)
 			testData <- i
 			coon, err := net.Dial("tcp", addr)
-			if err!=nil{
-				fmt.Printf("%v",err)
+			if err != nil {
+				fmt.Printf("%v", err)
 			}
 			defer coon.Close()
 			ElfJudge(node.filename, &problem, coon)
