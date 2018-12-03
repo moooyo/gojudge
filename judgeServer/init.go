@@ -1,20 +1,25 @@
 package main
 
+import (
+	"./dispatcher"
+	"./listenServer"
+	"./processServer"
+	"./submitwrap"
+)
+
 func RunSystem(conf Config) {
 
-	dispatcherChannel := make(chan SubmitTaskWrap, conf.DispatcherConfig.DispatchChannelSize)
+	dispatcherChannel := make(chan submitwrap.SubmitTaskWrap, conf.DispatcherConfig.DispatchChannelSize)
 
-	processChannel := make(chan SubmitTaskWrap, conf.DispatcherConfig.Ndocker)
+	processChannel := make(chan submitwrap.SubmitTaskWrap, conf.DispatcherConfig.Ndocker)
 
-	dispatcher := NewDispatcher(conf.DispatcherConfig, dispatcherChannel, processChannel)
+	processServer := processServer.NewProcessServer(conf.ProcessConfig, processChannel)
+	dispatcher := dispatcher.NewDispatcher(conf.DispatcherConfig, processServer, dispatcherChannel, processChannel)
 
 	go dispatcher.Run()
-
-	processServer := NewProcessServer(conf.ProcessConfig, processChannel)
-
 	go RunServer(processServer)
 
-	listenServer := NewListenServer(conf.ListenConfig, dispatcherChannel)
+	listenServer := listenServer.NewListenServer(conf.ListenConfig, dispatcherChannel)
 
 	RunServer(listenServer)
 }

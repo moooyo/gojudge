@@ -12,6 +12,11 @@
 *.out
 .idea
 .vscode
+<<<<<<< HEAD
+judgeServer/judgeServer
+judgeCore/judgeCore
+=======
 
 judgeCore/judgeCore
 judgeServer/judgeServer
+>>>>>>> master
