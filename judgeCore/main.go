@@ -30,17 +30,17 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	buf:=new(bytes.Buffer)
-	binary.Write(buf,binary.LittleEndian,uint64(unsafe.Sizeof(*submitId)))
-	binary.Write(buf,binary.LittleEndian,uint64(*submitId))
-	_,err=socket.Write(buf.Bytes())
-	if err!=nil{
+	buf := new(bytes.Buffer)
+	binary.Write(buf, binary.LittleEndian, uint64(unsafe.Sizeof(*submitId)))
+	binary.Write(buf, binary.LittleEndian, uint64(*submitId))
+	_, err = socket.Write(buf.Bytes())
+	if err != nil {
 		log.Fatal(err)
 	}
 	buf.Reset()
 	var submit def.Submit
-	err=socket.ReadStruct(&submit)
-	if err!=nil{
+	err = socket.ReadStruct(&submit)
+	if err != nil {
 		log.Fatal(err)
 	}
 	//complie SourceCode
