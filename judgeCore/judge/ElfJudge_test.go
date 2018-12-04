@@ -33,10 +33,6 @@ var testElf = []struct {
 		"./test/re",
 		def.RunTimeError,
 	},
-	{
-		"./test/mle",
-		def.MemoryLimitError,
-	},
 }
 
 const addr string = "127.0.0.1:8888"
@@ -56,6 +52,10 @@ func TestElfJudge(t *testing.T) {
 	go func() {
 		listen, err := net.Listen("tcp", addr)
 		syn <- struct{}{}
+		go func() {
+			<-syn
+			listen.Close()
+		}()
 		if err != nil {
 			fmt.Printf("%v", err)
 		}
@@ -72,7 +72,7 @@ func TestElfJudge(t *testing.T) {
 					wantCode := testElf[rs].want
 					judgeItem := rs + 1
 					if wantCode != resp.ErrCode {
-						log.Fatalf("test %d : want %d got %d\n", judgeItem, wantCode, resp.ErrCode)
+						log.Fatalf("Elf test %d : want %d got %d\n", judgeItem, wantCode, resp.ErrCode)
 					}
 					if resp.ErrCode != def.AcceptCode {
 						break
@@ -86,6 +86,9 @@ func TestElfJudge(t *testing.T) {
 		}
 	}()
 	<-syn
+	defer func() {
+		syn <- struct{}{}
+	}()
 	for i, node := range testElf {
 		func() {
 			//	fmt.Printf("i=%d\n",i+1)
