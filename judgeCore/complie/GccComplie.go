@@ -14,13 +14,12 @@ import (
 func GccComplie(submit *def.Submit) (err error) {
 	err = ParseConfig()
 	if err != nil {
+		fmt.Print(err)
 		panic("parse config error")
 	}
 	filename := "submit.c"
 	err = ioutil.WriteFile(filename, submit.CodeSource, os.ModePerm)
-	defer func() {
-		os.Remove(filename)
-	}()
+	defer os.Remove(filename)
 
 	if err != nil {
 		return fmt.Errorf("Write SourceCode to File error")
@@ -33,9 +32,12 @@ func GccComplie(submit *def.Submit) (err error) {
 	cmd.Stderr = &out
 	err = cmd.Run()
 	if err != nil {
-		var status int
-		fmt.Sscanf(err.Error(), "exit status %d", &status)
-		return fmt.Errorf(out.String())
+		switch err.Error() {
+		default:
+			return fmt.Errorf(out.String())
+		case "signal: killed":
+			return fmt.Errorf("complie timeout")
+		}
 	}
 	return
 }
