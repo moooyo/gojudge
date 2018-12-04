@@ -58,9 +58,7 @@ func (socket *Socket) SetWriteDeadline(t time.Time) error {
 }
 
 func (socket *Socket) Close() {
-	if socket.writer.Buffered() != 0 {
-		socket.writer.Flush()
-	}
+	socket.writer.Flush()
 	socket.conn.Close()
 }
 

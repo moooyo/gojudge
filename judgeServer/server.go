@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net"
 )
 
@@ -21,7 +22,7 @@ func RunServer(server Server) {
 	listener, err := net.Listen("tcp", server.Addr())
 
 	if err != nil {
-		return
+		log.Fatalln("Listen: ", server.Addr(), ": ", err)
 	}
 
 	server.InitServer(listener)

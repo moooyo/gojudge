@@ -11,23 +11,18 @@ import (
 	"time"
 )
 
-func GccComplie(submit *def.Submit) (err error) {
+func JavaComplie(submit *def.Submit) (err error) {
 	err = ParseConfig()
 	if err != nil {
-		fmt.Print(err)
-		panic("parse config error")
+		panic(err)
 	}
-	filename := "submit.c"
+	filename := "Main.java"
 	err = ioutil.WriteFile(filename, submit.CodeSource, os.ModePerm)
 	defer os.Remove(filename)
-
-	if err != nil {
-		return fmt.Errorf("Write SourceCode to File error")
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(Config["gcc"].TimeLimit))
+	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(Config["java"].TimeLimit))
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "gcc")
-	cmd.Args = Config["gcc"].Argv
+	cmd := exec.CommandContext(ctx, "javac")
+	cmd.Args = Config["java"].Argv
 	var out bytes.Buffer
 	cmd.Stderr = &out
 	err = cmd.Run()

@@ -9,35 +9,27 @@ import (
 import "../../def"
 import "../../moudle"
 
-var testElf = []struct {
+
+
+var testJava = []struct {
 	filename string
 	want     int
 }{
 	{
-		"./test/ac",
+		"Ac",
 		def.AcceptCode,
 	},
 	{
-		"./test/wa",
+		"Wa",
 		def.WrongAnwser,
 	},
 	{
-		"./test/tle",
+		"Tle",
 		def.TimeLimitError,
-	},
-	{
-		"./test/ole",
-		def.OuputLimitError,
-	},
-	{
-		"./test/re",
-		def.RunTimeError,
 	},
 }
 
-const addr string = "127.0.0.1:8888"
-
-func TestElfJudge(t *testing.T) {
+func TestJavaJudge(t *testing.T) {
 	var problem def.Problem
 	problem.TimeLimit = 1000
 	problem.MemoryLimit = 256
@@ -68,11 +60,12 @@ func TestElfJudge(t *testing.T) {
 					var resp def.Response
 					socket := moudle.NewSocket(coon)
 					socket.ReadStruct(&resp)
-					fmt.Printf("%v\n", resp)
+					//fmt.Printf("%v\n", resp)
 					wantCode := testElf[rs].want
 					judgeItem := rs + 1
 					if wantCode != resp.ErrCode {
-						log.Fatalf("Elf test %d : want %d got %d\n", judgeItem, wantCode, resp.ErrCode)
+						fmt.Printf("%s\n",string(resp.Msg))
+						log.Fatalf("Java test %d : want %d got %d\n", judgeItem, wantCode, resp.ErrCode)
 					}
 					if resp.ErrCode != def.AcceptCode {
 						break
@@ -89,7 +82,7 @@ func TestElfJudge(t *testing.T) {
 	defer func() {
 		syn <- struct{}{}
 	}()
-	for i, node := range testElf {
+	for i, node := range testJava {
 		func() {
 			//	fmt.Printf("i=%d\n",i+1)
 			testData <- i
@@ -98,7 +91,7 @@ func TestElfJudge(t *testing.T) {
 				fmt.Printf("%v", err)
 			}
 			defer coon.Close()
-			ElfJudge(node.filename, &problem, coon)
+			JavaJudge(node.filename,&problem, coon)
 		}()
 	}
 }
