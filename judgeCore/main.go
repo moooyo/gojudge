@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strconv"
 	"unsafe"
 )
 import "../def"
@@ -57,7 +58,9 @@ func main() {
 	return
 }
 func Complie(submit *def.Submit) (problem def.Problem, err error) {
-	filename := BasePath + "/" + string(submit.ProblemID) + "/problem.json"
+	filename := BasePath + "/" + strconv.Itoa(submit.ProblemID) + "/problem.json"
+	log.Println(submit.ProblemID)
+	log.Println(filename)
 	err = ParseProblemFile(filename, &problem)
 	if err != nil {
 		log.Fatal(fmt.Errorf("Parse problem %s FAILD", filename))

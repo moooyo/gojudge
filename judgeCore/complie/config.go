@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 )
 
-const configPath = "config.json"
+const configPath = "./complie/config.json"
 
 type configStruct map[string]struct {
 	Argv      []string `json:"argv"`
