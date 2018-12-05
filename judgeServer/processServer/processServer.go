@@ -82,6 +82,7 @@ func (processServer *ProcessServer) AcceptConn(conn net.Conn) {
 			socket.Close()
 			return
 		}
+		socket.WriteStruct(submitTaskWrap.Task)
 		for {
 			var resp def.Response
 			err := socket.ReadStruct(&resp)
