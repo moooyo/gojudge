@@ -15,7 +15,7 @@ func GccComplie(submit *def.Submit) (err error) {
 	err = ParseConfig()
 	if err != nil {
 		fmt.Print(err)
-		panic("parse config error")
+		panic("parse config error "+err.Error())
 	}
 	filename := "submit.c"
 	err = ioutil.WriteFile(filename, submit.CodeSource, os.ModePerm)
