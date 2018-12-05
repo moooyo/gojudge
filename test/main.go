@@ -2,6 +2,7 @@ package test
 
 import (
 	"../def"
+	"fmt"
 	"net"
 	"../moudle"
 )
@@ -24,5 +25,11 @@ func main(){
 	}
 	socket:=moudle.NewSocket(conn)
 	socket.WriteStruct(&submit)
+	for {
+		var resp def.Response
+		socket.ReadStruct(&resp)
+		fmt.Print(resp)
+		fmt.Print(string(resp.Msg))
+	}
 	return
 }
