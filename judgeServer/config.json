@@ -10,14 +10,20 @@
         "queueSize": 1024,
         "channelSize": 1024,
         "ndocker": 8,
-        "network": "maymomo",
         "clientConfig" : {
             "httpAddr": "http://172.17.0.1:8118",
             "version": "v1.37"
         },
-        "processAddrMap":  "judgeServer",
-        "processPort":      8081,
-        "listenAddrMap":   "judgeServer",
-        "listenPort":       8080
+        "executorConfig": {
+            "network":         "gojudge",
+            "processAddrMap":  "judgeServer",
+            "processPort":      8081,
+            "listenAddrMap":   "judgeServer",
+            "listenPort":       8080,
+            "volume":          "gojudgetest",
+            "image":           "gojudgecore",
+            "cmd":             "./judgeCore",
+            "mountPoint":       "/home/gojudge/judgeCore/problem"
+        }
     }
 }
