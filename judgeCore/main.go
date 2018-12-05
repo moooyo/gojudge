@@ -47,7 +47,6 @@ func main() {
 	problem, err := Complie(&submit)
 	var resp def.Response
 	if err != nil {
-		//todo
 		resp.ErrCode = def.ComplierError
 		resp.Msg = []byte(err.Error())
 		socket.WriteStruct(&resp)
@@ -58,7 +57,7 @@ func main() {
 	return
 }
 func Complie(submit *def.Submit) (problem def.Problem, err error) {
-	filename := BasePath + string(submit.ProblemID) + "/problem.json"
+	filename := BasePath + "/" + string(submit.ProblemID) + "/problem.json"
 	err = ParseProblemFile(filename, &problem)
 	if err != nil {
 		log.Fatal(fmt.Errorf("Parse problem %s FAILD", filename))
