@@ -77,17 +77,18 @@ func Complie(submit *def.Submit) (problem def.Problem, err error) {
 }
 
 func RunJudge(submit *def.Submit, problem *def.Problem, conn net.Conn) (err error) {
+	problemPath:="./problem/"+strconv.Itoa(submit.ProblemID)
 	switch submit.Language {
 	default:
 		return fmt.Errorf("gojudge not support this language")
 	case def.CLanguage:
-		err = judge.ElfJudge(CompliePath, problem, conn)
+		err = judge.ElfJudge(problemPath,CompliePath, problem, conn)
 	case def.Cpp11Language:
-		err = judge.ElfJudge(CompliePath, problem, conn)
+		err = judge.ElfJudge(problemPath,CompliePath, problem, conn)
 	case def.Cpp17Language:
-		err = judge.ElfJudge(CompliePath, problem, conn)
+		err = judge.ElfJudge(problemPath,CompliePath, problem, conn)
 	case def.Cpp99Language:
-		err = judge.ElfJudge(CompliePath, problem, conn)
+		err = judge.ElfJudge(problemPath,CompliePath, problem, conn)
 	}
 	return
 }
