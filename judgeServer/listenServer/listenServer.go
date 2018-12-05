@@ -31,7 +31,6 @@ func (listenServer *ListenServer) InitServer(listener net.Listener) error {
 }
 
 func (listenServer *ListenServer) AcceptConn(conn net.Conn) {
-	log.Println("listenServer incoming")
 	socket := moudle.NewSocket(conn)
 	go func(socket *moudle.Socket) {
 		var submit def.Submit
@@ -42,7 +41,6 @@ func (listenServer *ListenServer) AcceptConn(conn net.Conn) {
 			return
 		}
 		log.Println("New submit from web front: ", &submit)
-		log.Println(submit.CodeSource)
 		socket.Close()
 		listenServer.dispatcherChannel <- submitwrap.WrapSubmit(&submit)
 	}(socket)
