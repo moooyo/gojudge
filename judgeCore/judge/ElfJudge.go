@@ -2,7 +2,6 @@ package judge
 
 import (
 	"../../def"
-	"../../moudle"
 	"context"
 	"fmt"
 	"net"
@@ -12,14 +11,6 @@ import (
 	"time"
 )
 
-const (
-	signlParse string = "signal: %s"
-)
-const (
-	SIGKILL      = "signal: killed"
-	RuntimeError = "signal: segmentation fault (core dumped)"
-)
-const eps = 0.01
 
 func ElfJudge(judgeFile string, problem *def.Problem, conn net.Conn) (err error) {
 	filename := judgeFile
@@ -82,12 +73,4 @@ func ElfJudge(judgeFile string, problem *def.Problem, conn net.Conn) (err error)
 	}
 	return
 }
-func buildResponse(resp *def.Response, code int, msg string) bool {
-	resp.ErrCode = code
-	resp.Msg = []byte(msg)
-	return resp.ErrCode == def.AcceptCode
-}
-func sendResponse(conn net.Conn, resp *def.Response) {
-	socket := moudle.NewSocket(conn)
-	socket.WriteStruct(resp)
-}
+
