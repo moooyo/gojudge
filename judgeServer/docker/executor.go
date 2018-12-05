@@ -179,6 +179,7 @@ func (executor *DockerExecutor) CreateAndStart() error {
 	executor.client.NetworkConnect(executor.client.context, executor.network, executor.container, &network.EndpointSettings{})
 
 	executor.client.NetworkDisconnect(executor.client.context, "default", executor.container, true)
+
 	err = executor.client.ContainerStart(executor.client.context, executor.container, types.ContainerStartOptions{})
 	if err != nil {
 		executor.Destroy()
