@@ -116,6 +116,7 @@ func (dispatcher *Dispatcher) reclaim(submitTaskWrap submitwrap.SubmitTaskWrap) 
 		return
 	}
 	dockerExecutor.Destroy()
+	delete(dispatcher.dockerExecutors, submitwrap.Task.SubmitID)
 	if dispatcher.ndockeRemain+1 > dispatcher.Ndocker {
 		log.Println("reclaim ndockeRemain >= Ndocker")
 	} else {
