@@ -2,13 +2,11 @@ package main
 
 import (
 	"bytes"
-	"encoding/binary"
 	"flag"
 	"fmt"
 	"log"
 	"net"
 	"strconv"
-	"unsafe"
 )
 import "../def"
 import "../moudle"
@@ -26,21 +24,24 @@ func main() {
 	//parse args
 	flag.Parse()
 	serverConn, err := net.Dial("tcp", *adress+":"+*port)
-	socket := moudle.NewSocket(serverConn)
+	socket:=moudle.SocketFromConn(serverConn)
+	//socket := moudle.NewSocket(serverConn)
+	encoder:=moudle.NewEnCoder()
 	defer socket.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
 	buf := new(bytes.Buffer)
-	binary.Write(buf, binary.LittleEndian, uint64(unsafe.Sizeof(*submitId)))
-	binary.Write(buf, binary.LittleEndian, uint64(*submitId))
+	encoder.SendInt(socket,*submitId)
+	decodere:=moudle.NewDecoder()
 	_, err = socket.Write(buf.Bytes())
 	if err != nil {
 		log.Fatal(err)
 	}
 	buf.Reset()
 	var submit def.Submit
-	err = socket.ReadStruct(&submit)
+	//err = socket.ReadStruct(&submit)
+	err=decodere.ReadStruct(socket,&submit)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -50,7 +51,7 @@ func main() {
 	if err != nil {
 		resp.ErrCode = def.ComplierError
 		resp.Msg = []byte(err.Error())
-		socket.WriteStruct(&resp)
+		encoder.SendStruct(socket,&resp)
 		return
 	}
 	//Run

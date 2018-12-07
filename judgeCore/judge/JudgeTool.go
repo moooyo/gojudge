@@ -17,7 +17,11 @@ func buildResponse(resp *def.Response, code int, msg string) bool {
 	return resp.ErrCode == def.AcceptCode
 }
 
-func sendResponse(conn net.Conn, resp *def.Response) {
-	socket := moudle.NewSocket(conn)
-	socket.WriteStruct(resp)
+func sendResponse(conn net.Conn, resp *def.Response){
+	encoder:=moudle.NewEnCoder()
+	socket:=moudle.SocketFromConn(conn)
+	err:=encoder.SendStruct(socket,resp)
+	if err!=nil{
+		panic("Socket Couldn't Send Response to Server!")
+	}
 }
