@@ -92,6 +92,14 @@ func (processServer *ProcessServer) AcceptConn(conn net.Conn) {
 				break
 			} else {
 				log.Println(&resp)
+				if resp.ErrCode != def.AcceptCode {
+
+				} else if resp.AllNode != resp.JudgeNode {
+					continue
+				} else {
+				}
+				submitTaskWrap.Status = submitwrap.OK
+				break
 			}
 		}
 		socket.Close()

@@ -26,9 +26,8 @@ func main(){
 	socket:=moudle.NewSocket(conn)
 	socket.WriteStruct(&submit)
 	var resp def.Response
-	for {
-		socket.ReadStruct(&resp)
-		fmt.Print(string(resp.Msg))
-	}
+	socket.ReadStruct(&resp)
+	fmt.Print(resp)
+	fmt.Print(string(resp.Msg))
 	return
 }
