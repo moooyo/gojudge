@@ -2,112 +2,78 @@ package moudle
 
 import (
 	"../def"
-	"fmt"
+	"log"
 	"net"
 	"reflect"
 	"testing"
 )
 
-const count int = 1000000
-
-func StartTestServer(addr string, sync chan<- int) {
-	listener, err := net.Listen("tcp", addr)
-	if err != nil {
-		panic(err)
-	}
-
+func server(listen net.Listener) {
 	for {
-		sync <- 1
-		conn, err := listener.Accept()
+		conn, err := listen.Accept()
 		if err != nil {
-			fmt.Println("Accept err")
-			panic(err)
+			continue
 		}
-		go func(conn net.Conn) {
-			socket := NewSocket(conn)
-			for i := 0; i < count; i++ {
-				data, err := socket.SocketRead()
 
-				if err != nil {
-					panic(err)
-				}
-				//data = data[8:len(data)]
-				socket.SocketWrite(data)
+		socket := SocketFromConn(conn)
+
+		coder := NewDECoderWithSize(1024 * 1024 * 2)
+
+		for i := 0; i < 1000; i++ {
+			var submit def.Submit
+			err = coder.ReadStruct(socket, &submit)
+			if err != nil {
+				log.Fatal(err)
 			}
-			conn.Close()
-		}(conn)
 
+			coder.AppendStruct(&submit)
+
+			coder.Send(socket)
+		}
+
+		socket.Close()
 	}
-
 }
 
-func TestReadWriteData(t *testing.T) {
+func TestSocket(t *testing.T) {
 
-	sync := make(chan int, 1)
-	addr := "127.0.0.1:8081"
-	go StartTestServer(addr, sync)
+	listen, err := net.Listen("tcp", "127.0.0.1:8080")
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	data := make([]byte, 1024)
-	<-sync
-	conn, _ := net.Dial("tcp", addr)
+	go server(listen)
 
-	socket := NewSocketWithSize(conn, 1024*1024*4, 1024*1024*4)
+	socket, err := Dial("127.0.0.1:8080")
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	for i := 0; i < count; i++ {
+	coder := NewDECoderWithSize(2 * 1024 * 1024)
 
-		n, err := socket.SocketWrite(data)
+	defer socket.Close()
+
+	for i := 0; i < 1000; i++ {
+		submit := def.Submit{
+			SubmitID:   i,
+			ProblemID:  i,
+			CodeSource: make([]byte, 1024*5),
+			Language:   i,
+		}
+		coder.AppendStruct(&submit)
+
+		coder.Send(socket)
+
+		var result def.Submit
+
+		err = coder.ReadStruct(socket, &result)
 
 		if err != nil {
-			t.Error(n, err)
+			t.Fatal(err)
 		}
 
-		resp, err := socket.SocketRead()
-
-		if err != nil {
-			t.Error(err)
-		}
-		if !reflect.DeepEqual(data, resp) {
-			t.Error("send not equal recv")
+		if !reflect.DeepEqual(result, submit) {
+			t.Fail()
 		}
 	}
-	conn.Close()
-}
-
-func TestReadWriteStruct(t *testing.T) {
-	sync := make(chan int, 1)
-	addr := "127.0.0.1:8080"
-	go StartTestServer(addr, sync)
-
-	<-sync
-	conn, _ := net.Dial("tcp", addr)
-
-	socket := NewSocket(conn)
-
-	for i := 0; i < count; i++ {
-
-		var data = def.Submit{
-			i,
-			i,
-			[]byte("Hello, world"),
-			i,
-		}
-
-		err := socket.WriteStruct(&data)
-
-		if err != nil {
-			t.Error(err)
-		}
-
-		var resp def.Submit
-
-		err = socket.ReadStruct(&resp)
-
-		if err != nil {
-			t.Error(err)
-		}
-		if !reflect.DeepEqual(data, resp) {
-			t.Error("send not equal recv")
-		}
-	}
-	conn.Close()
 }

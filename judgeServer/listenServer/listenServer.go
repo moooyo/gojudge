@@ -31,10 +31,11 @@ func (listenServer *ListenServer) InitServer(listener net.Listener) error {
 }
 
 func (listenServer *ListenServer) AcceptConn(conn net.Conn) {
-	socket := moudle.NewSocket(conn)
+	socket := moudle.SocketFromConn(conn)
 	go func(socket *moudle.Socket) {
 		var submit def.Submit
-		err := socket.ReadStruct(&submit)
+		decoder := moudle.NewDecoderWithSize(1024 * 1024)
+		err := decoder.ReadStruct(socket, &submit)
 		if err != nil {
 			log.Println("AcceptConn read ", err)
 			socket.Close()
