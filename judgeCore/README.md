@@ -4,6 +4,8 @@
 
 ## 配置
 
+如果不需要配置，可以使用build.sh进行环境构建。配置完成后为了构建环境需要执行ComplieEnv中的build.sh和JudgeCore中的build.sh
+
 ### docker 
 
 该评测机推荐(在开发过程中依赖于)docker环境运行，以确保进行资源隔离。  
