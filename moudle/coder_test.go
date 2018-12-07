@@ -12,7 +12,7 @@ func TestCode(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	coder := NewDECoder(1024 * 6)
+	coder := NewDECoderWithSize(1024 * 6)
 
 	for i := 0; i < 10; i++ {
 		submit := def.Submit{

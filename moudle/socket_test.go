@@ -17,7 +17,7 @@ func server(listen net.Listener) {
 
 		socket := SocketFromConn(conn)
 
-		coder := NewDECoder(1024 * 1024 * 2)
+		coder := NewDECoderWithSize(1024 * 1024 * 2)
 
 		for i := 0; i < 1000; i++ {
 			var submit def.Submit
@@ -49,7 +49,7 @@ func TestSocket(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	coder := NewDECoder(2 * 1024 * 1024)
+	coder := NewDECoderWithSize(2 * 1024 * 1024)
 
 	defer socket.Close()
 

@@ -4,7 +4,6 @@ import (
 	"../../def"
 	"../../moudle"
 	"../submitwrap"
-	"encoding/binary"
 	"log"
 	"net"
 	"sync"
@@ -63,29 +62,25 @@ func (processServer *ProcessServer) InitServer(listener net.Listener) error {
 }
 
 func (processServer *ProcessServer) AcceptConn(conn net.Conn) {
-	socket := moudle.NewSocket(conn)
+	socket := moudle.SocketFromConn(conn)
 	go func(socket *moudle.Socket) {
-		data := make([]byte, 8)
-		_, err := socket.Read(data)
+		coder := moudle.NewDECoderWithSize(1024 * 4)
+		submitid, err := coder.ReadInt(socket)
 		if err != nil {
-			log.Println("processServer: ", err)
+			log.Println(err)
 			socket.Close()
 			return
 		}
-		temp := uint64(binary.LittleEndian.Uint64(data))
-		tempdata := make([]byte, temp)
-		socket.Read(tempdata)
-		submitid := int(binary.LittleEndian.Uint32(tempdata))
 		submitTaskWrap, ok := processServer.CheckoutSubmit(submitid)
 		if !ok {
 			log.Println("processServer access a bad submit")
 			socket.Close()
 			return
 		}
-		socket.WriteStruct(submitTaskWrap.Task)
+		coder.SendStruct(socket, submitTaskWrap.Task)
 		for {
 			var resp def.Response
-			err := socket.ReadStruct(&resp)
+			err := coder.ReadStruct(socket, &resp)
 			if err != nil {
 				submitTaskWrap.Status = submitwrap.ERROR
 				log.Println("judgeCore error")

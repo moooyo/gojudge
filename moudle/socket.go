@@ -94,3 +94,11 @@ func (socket *Socket) Read(data []byte) (int, error) {
 	}
 	return all, nil
 }
+
+func (socket *Socket) RemoteAddr() net.Addr {
+	return socket.conn.RemoteAddr()
+}
+
+func (socket *Socket) LocalAddr() net.Addr {
+	return socket.conn.LocalAddr()
+}

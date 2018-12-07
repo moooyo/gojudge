@@ -20,7 +20,7 @@ type Decoder struct {
 
 func NewDecoder() *Decoder {
 	return &Decoder{
-		mlen: 1024 * 1024 * 4,
+		mlen: 1024 * 1024 * 1,
 	}
 }
 
@@ -187,7 +187,14 @@ type DEcoder struct {
 	*EnCoder
 }
 
-func NewDECoder(max_len int) *DEcoder {
+func NewDECoder() *DEcoder {
+	return &DEcoder{
+		NewDecoder(),
+		NewEnCoder(),
+	}
+}
+
+func NewDECoderWithSize(max_len int) *DEcoder {
 	return &DEcoder{
 		NewDecoderWithSize(max_len),
 		NewEnCoder(),
