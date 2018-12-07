@@ -8,5 +8,12 @@
         "-std=c99"
       ],
     "timelimit":5000
+  },
+  "java":{
+    "argv": [
+      "javac",
+      "Main.java"
+    ],
+    "timelimit":5000
   }
 }

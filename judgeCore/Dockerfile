@@ -1,8 +1,4 @@
-FROM scratch
-
-COPY judgeCore /home/gojudge/judgeCore/
-COPY example.json /home/gojudge/judgeCore/
-COPY complie    /home/gojudge/judgeCore/complie/
-COPY judge/test /home/gojudge/judgeCore/judge/
-
+FROM gojudgecomplieenv
+COPY judgeCore				/home/gojudge/judgeCore/ 
+COPY complie/config.json	/home/gojudge/judgeCore/ 
 WORKDIR /home/gojudge/judgeCore

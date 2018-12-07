@@ -63,25 +63,26 @@ func (processServer *ProcessServer) InitServer(listener net.Listener) error {
 }
 
 func (processServer *ProcessServer) AcceptConn(conn net.Conn) {
-	log.Println("processServer incoming")
 	socket := moudle.NewSocket(conn)
 	go func(socket *moudle.Socket) {
-		data := make([]byte, 4)
+		data := make([]byte, 8)
 		_, err := socket.Read(data)
 		if err != nil {
 			log.Println("processServer: ", err)
 			socket.Close()
 			return
 		}
-		log.Println(data)
-		submitid := int(binary.LittleEndian.Uint32(data))
-		log.Println(submitid)
+		temp := uint64(binary.LittleEndian.Uint64(data))
+		tempdata := make([]byte, temp)
+		socket.Read(tempdata)
+		submitid := int(binary.LittleEndian.Uint32(tempdata))
 		submitTaskWrap, ok := processServer.CheckoutSubmit(submitid)
 		if !ok {
 			log.Println("processServer access a bad submit")
 			socket.Close()
 			return
 		}
+		socket.WriteStruct(submitTaskWrap.Task)
 		for {
 			var resp def.Response
 			err := socket.ReadStruct(&resp)
@@ -91,6 +92,14 @@ func (processServer *ProcessServer) AcceptConn(conn net.Conn) {
 				break
 			} else {
 				log.Println(&resp)
+				if resp.ErrCode != def.AcceptCode {
+
+				} else if resp.AllNode != resp.JudgeNode {
+					continue
+				} else {
+				}
+				submitTaskWrap.Status = submitwrap.OK
+				break
 			}
 		}
 		socket.Close()

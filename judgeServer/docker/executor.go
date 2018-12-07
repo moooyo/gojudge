@@ -4,10 +4,12 @@ import (
 	"context"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
 	_ "github.com/docker/docker/api/types/strslice"
 	"github.com/docker/docker/client"
 	_ "log"
+	"strconv"
 )
 
 type DockerClient struct {
@@ -22,7 +24,16 @@ type DockerClientConfig struct {
 	Version  string `json:"version"`
 }
 
-//cli, err := client.NewClient("http://172.17.0.1:8118", "v1.37", nil, nil)
+type DockerExecutorConfig struct {
+	NetWork        string `json:"network"`
+	ProcessAddrMap string `json:"processAddrMap"`
+	ProcessPort    int    `json:"processPort"`
+	ListenAddrMap  string `json:"listenAddrMap"`
+	Volume         string `json:"volume"`
+	Image          string `json:"image"`
+	Cmd            string `json:"cmd"`
+	MountPoint     string `json:"mountPoint"`
+}
 
 func NewDockerClient(httpAddr string, version string) (*DockerClient, error) {
 	cli, err := client.NewClient(httpAddr, version, nil, nil)
@@ -85,29 +96,39 @@ const (
 )
 
 type DockerExecutor struct {
-	localAddr string
-	localPort string
-	container string
-	cmd       []string
-	image     string
-	network   string
-	resource  Resource
-	client    *DockerClient
-	status    int
+	localAddr  string
+	localPort  int
+	container  string
+	cmd        []string
+	image      string
+	network    string
+	resource   Resource
+	client     *DockerClient
+	status     int
+	volume     string
+	mountPoint string
 }
 
-func NewDockerExecutor(localAddr, localPort, image, network, containerName string,
-	cmd []string, resource Resource, client *DockerClient) *DockerExecutor {
+func NewDockerExecutor(submitID int, containerName string, resource Resource, client *DockerClient, config DockerExecutorConfig) *DockerExecutor {
+
+	cmd := make([]string, 0)
+	cmd = append(cmd, config.Cmd)
+	cmd = append(cmd, "--adress="+config.ProcessAddrMap)
+	cmd = append(cmd, "--port="+strconv.Itoa(config.ProcessPort))
+	cmd = append(cmd, "--submitID="+strconv.Itoa(submitID))
+
 	return &DockerExecutor{
-		localAddr: localAddr,
-		localPort: localPort,
-		cmd:       cmd,
-		image:     image,
-		network:   network,
-		resource:  resource,
-		client:    client,
-		container: containerName,
-		status:    waiting,
+		localAddr:  config.ListenAddrMap,
+		localPort:  config.ProcessPort,
+		cmd:        cmd,
+		image:      config.Image,
+		network:    config.NetWork,
+		resource:   resource,
+		client:     client,
+		container:  containerName,
+		status:     waiting,
+		volume:     config.Volume,
+		mountPoint: config.MountPoint,
 	}
 }
 
@@ -125,12 +146,22 @@ func (executor *DockerExecutor) CreateAndStart() error {
 			msg: "already started",
 		}
 	}
+	var mountVolume mount.Mount = mount.Mount{
+		Type:        "volume",
+		Source:      executor.volume,
+		Target:      executor.mountPoint,
+		ReadOnly:    true,
+		Consistency: "default",
+	}
 	nconfig := network.NetworkingConfig{}
+
 	hostconfig := &container.HostConfig{
 		Resources: container.Resources{
 			Memory: executor.resource.Memory,
 		},
+		Mounts: []mount.Mount{mountVolume},
 	}
+
 	config := container.Config{
 		Image:        executor.image,
 		Cmd:          executor.cmd,
@@ -139,11 +170,16 @@ func (executor *DockerExecutor) CreateAndStart() error {
 		AttachStdin:  true,
 		AttachStderr: true,
 	}
+
 	_, err := executor.client.ContainerCreate(executor.client.context, &config, hostconfig, &nconfig, executor.container)
 	if err != nil {
 		return err
 	}
+
 	executor.client.NetworkConnect(executor.client.context, executor.network, executor.container, &network.EndpointSettings{})
+
+	executor.client.NetworkDisconnect(executor.client.context, "default", executor.container, true)
+
 	err = executor.client.ContainerStart(executor.client.context, executor.container, types.ContainerStartOptions{})
 	if err != nil {
 		executor.Destroy()

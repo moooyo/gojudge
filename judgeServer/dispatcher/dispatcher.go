@@ -10,15 +10,12 @@ import (
 )
 
 type DispatcherConfig struct {
-	QueueSize           int                       `json:"queueSize"`
-	DispatchChannelSize int                       `json:"channelSize"`
-	Network             string                    `json:"network"`
-	Ndocker             int                       `json:"ndocker"`
-	ClientConfig        docker.DockerClientConfig `json:"clientConfig"`
-	ProcessAddrMap      string                    `json:"processAddrMap"`
-	ProcessPort         int                       `json:"processPort"`
-	ListenAddrMap       string                    `json:"listenAddrMap"`
-	ListenPort          int                       `json:"listenPort"`
+	QueueSize           int                         `json:"queueSize"`
+	DispatchChannelSize int                         `json:"channelSize"`
+	Network             string                      `json:"network"`
+	Ndocker             int                         `json:"ndocker"`
+	ClientConfig        docker.DockerClientConfig   `json:"clientConfig"`
+	ExecutorConfig      docker.DockerExecutorConfig `json:"executorConfig"`
 }
 
 type Dispatcher struct {
@@ -27,13 +24,13 @@ type Dispatcher struct {
 
 	processChannel <-chan submitwrap.SubmitTaskWrap
 	processServer  *processServer.ProcessServer
-	processAddrMap string
-	processPort    int
 
 	Ndocker         int
 	ndockeRemain    int
 	dockerClient    *docker.DockerClient
 	dockerExecutors map[int]*docker.DockerExecutor
+
+	executorConfig docker.DockerExecutorConfig
 }
 
 func NewDispatcher(config DispatcherConfig, processServer *processServer.ProcessServer, dispatchChannel chan submitwrap.SubmitTaskWrap,
@@ -43,18 +40,18 @@ func NewDispatcher(config DispatcherConfig, processServer *processServer.Process
 		log.Fatal(err)
 	}
 	return &Dispatcher{
-		tasks:           list.New(),
-		Ndocker:         config.Ndocker,
-		ndockeRemain:    config.Ndocker,
+		tasks:        list.New(),
+		Ndocker:      config.Ndocker,
+		ndockeRemain: config.Ndocker,
+
 		dispatchChannel: dispatchChannel,
 		processChannel:  processChannel,
+		processServer:   processServer,
 		dockerClient:    dockerClient,
 
 		dockerExecutors: make(map[int]*docker.DockerExecutor),
 
-		processServer:  processServer,
-		processAddrMap: config.ProcessAddrMap,
-		processPort:    config.ProcessPort,
+		executorConfig: config.ExecutorConfig,
 	}
 }
 
@@ -90,21 +87,14 @@ func (dispatcher *Dispatcher) dispatch() {
 		item := dispatcher.tasks.Front()
 		dispatcher.tasks.Remove(item)
 		if newTask, ok := item.Value.(submitwrap.SubmitTaskWrap); ok {
+
 			dispatcher.processServer.AddSubmit(newTask)
 
-			//now just write gojudgeCore and judgeServer
-			cmd := make([]string, 0)
-			cmd = append(cmd, "./judgeCore")
-			cmd = append(cmd, "--adress="+dispatcher.processAddrMap)
-			cmd = append(cmd, "--port="+strconv.Itoa(dispatcher.processPort))
-			cmd = append(cmd, "--submitID="+strconv.Itoa(newTask.Task.SubmitID))
-			log.Println(cmd)
 			resource := docker.Resource{}
 			resource.SetMemoryByMb(100)
 
-			dockerExecutor := docker.NewDockerExecutor(dispatcher.processAddrMap,
-				strconv.Itoa(dispatcher.processPort), "gojudgecore", "gojudge", submitID2String(newTask.Task.SubmitID),
-				cmd, resource, dispatcher.dockerClient)
+			dockerExecutor := docker.NewDockerExecutor(newTask.Task.SubmitID, submitID2String(newTask.Task.SubmitID), resource, dispatcher.dockerClient, dispatcher.executorConfig)
+
 			err := dockerExecutor.CreateAndStart()
 			if err != nil {
 				log.Println("docker: ", dispatcher.dockerClient, " ", err)
@@ -126,6 +116,7 @@ func (dispatcher *Dispatcher) reclaim(submitTaskWrap submitwrap.SubmitTaskWrap) 
 		return
 	}
 	dockerExecutor.Destroy()
+	delete(dispatcher.dockerExecutors, submitwrap.Task.SubmitID)
 	if dispatcher.ndockeRemain+1 > dispatcher.Ndocker {
 		log.Println("reclaim ndockeRemain >= Ndocker")
 	} else {
@@ -134,5 +125,5 @@ func (dispatcher *Dispatcher) reclaim(submitTaskWrap submitwrap.SubmitTaskWrap) 
 }
 
 func submitID2String(submitID int) string {
-	return "juge_" + strconv.Itoa(submitID)
+	return "judge_" + strconv.Itoa(submitID)
 }
