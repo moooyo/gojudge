@@ -132,7 +132,7 @@ func (encoder *EnCoder) Send(writer io.Writer) error {}
 
 #### Decoder
 
-	从一个reader中读取长度不超过mlen的消息，病解码成特定的数据格式
+	从一个reader中读取长度不超过mlen的消息，并解码成特定的数据格式
 ```go
 type Decoder struct {
 	mlen int
