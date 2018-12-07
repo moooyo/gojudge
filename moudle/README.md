@@ -123,7 +123,7 @@ func (encoder *EnCoder) SendInt(writer io.Writer, data int) error {}
 //向编码器中追加一个实现了SocketInterface接口的结构体，并将编码器内所有数据写入writer
 func (encoder *EnCoder) SendStruct(writer io.Writer, v def.SocketInterface) error {}
 
-//向编码器buffer中追加一个接口体
+//向编码器buffer中追加一个结构体
 func (encoder *EnCoder) AppendStruct(v def.SocketInterface) error {}
 
 //将编码器中所有数据写入writer
