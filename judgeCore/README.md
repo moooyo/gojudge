@@ -2,19 +2,19 @@
 
 此部分为评测核心部分，承担判评题目的功能。相关的评测选项，评测设置需要在此部分中进行配置。
 
+该评测机推荐(在开发过程中依赖于)docker环境运行，以确保进行资源隔离。  
+
 ## 配置
 
 如果不需要配置，可以使用build.sh进行环境构建。配置完成后为了构建环境需要执行ComplieEnv中的build.sh和JudgeCore中的build.sh
 
 ### docker 
 
-该评测机推荐(在开发过程中依赖于)docker环境运行，以确保进行资源隔离。  
-
 ComplieEnv中构建了docker的编译环境，对于该评测机的运行环境来说，可以通过该Dockerfile进行修改。  
 
-JudgeCore的运行环境从gojudgecomplieenv(ComplieEnv)开始构建，为了进行构建需要对judgeCore部分进行编译并生成二进制文件judgeCore, 并且需要依赖于complie中的config.json文件进行相关参数设置，你可以适当的修改对应的Dockerfile文件或者config.json文件，但除非你明白你正在做什么，你不应该破坏JudgeCore在docker中运行的相关路径信息。  
+JudgeCore的运行环境从gojudgecomplieenv(ComplieEnv)开始构建，该镜像定义了评测核心运行的基础环境，镜像的构建主要是对相关软件包的安装，可以按照个人喜好替换这一镜像或进行部分修改，**但不应破坏程序运行的路径。**
 
-JudgeCore在docker中的运行环境从/home/gojudge/judgeCore开始，其余部分并不关心。为了获取评测信息，你需要把题目挂载到/home/gojudge/judgeCore/problem下。例如，对于题目编号为1000和1001的两组题目，挂载路径应该为/home/gojudge/judgeCore/problem/1000和/home/gojudge/judgeCore/problem/1001
+评测机运行路径从/home/gojudge/judgeCore开始，对其余部分不做任何需要。在该目录下存放题目文件夹/problem和评测机配置文件config.json以及评测机二进制文件judgeCore。在problem文件夹下应该有以题目编号为名的各个文件夹，各文件夹内应包含评测所需文件和题目定义problem.json.
 
 ### 题目定义
 
