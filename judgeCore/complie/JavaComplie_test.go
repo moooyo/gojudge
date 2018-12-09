@@ -37,6 +37,7 @@ public class Main{
 `), false}}
 
 func TestJavaComplie(t *testing.T) {
+	configPath="./config.json"
 	var submit = def.Submit{
 		1000,
 		1000,

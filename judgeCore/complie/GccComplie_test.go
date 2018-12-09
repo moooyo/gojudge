@@ -29,6 +29,7 @@ var testGcc = []struct {
 `), false}}
 
 func TestGccComplie(t *testing.T) {
+	configPath="./config.json"
 	var submit = def.Submit{
 		1000,
 		1000,
