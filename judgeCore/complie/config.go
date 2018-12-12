@@ -5,8 +5,7 @@ import (
 	"io/ioutil"
 )
 
-const configPath = "/home/gojudge/judgeCore/config.json"
-
+var configPath = "/home/gojudge/judgeCore/config.json"
 type configStruct map[string]struct {
 	Argv      []string `json:"argv"`
 	TimeLimit int      `json:"timelimit"`
