@@ -59,7 +59,7 @@ func NewExecutor(executorChannel chan submitwrap.SubmitTaskWrap,
 		workers = append(workers, w)
 	}
 
-	client, err := NewDockerClient(clientConfig.HttpAddr, "1.28")
+	client, err := NewDockerClient(clientConfig.HttpAddr, clientConfig.Version)
 	if err != nil {
 		log.Fatal(err)
 	}

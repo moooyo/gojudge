@@ -33,7 +33,7 @@
         },
         "clientConfig" : {
             "httpAddr": "http://172.17.0.1:8118",
-            "version": "v1.37"
+            "version": "1.37"
         }
     }
 }
