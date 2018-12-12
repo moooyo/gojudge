@@ -10,22 +10,23 @@ import (
 )
 
 type ProcessServerConfig struct {
-	ListenAddr string `json:"listenAddr"`
+	ListenAddr  string `json:"listenAddr"`
+	ChannelSize int    `json:"channelSize"`
 }
 
 type ProcessServer struct {
-	taskMap        map[int]submitwrap.SubmitTaskWrap
-	processChannel chan submitwrap.SubmitTaskWrap
-	listener       net.Listener
-	mutex          sync.Mutex
-	addr           string
+	taskMap           map[int]submitwrap.SubmitTaskWrap
+	dispathcerChannel chan<- submitwrap.SubmitTaskWrap
+	listener          net.Listener
+	mutex             sync.Mutex
+	addr              string
 }
 
-func NewProcessServer(config ProcessServerConfig, processChannel chan submitwrap.SubmitTaskWrap) *ProcessServer {
+func NewProcessServer(config ProcessServerConfig, dispathcerChannel chan<- submitwrap.SubmitTaskWrap) *ProcessServer {
 	return &ProcessServer{
-		taskMap:        make(map[int]submitwrap.SubmitTaskWrap),
-		processChannel: processChannel,
-		addr:           config.ListenAddr,
+		taskMap:           make(map[int]submitwrap.SubmitTaskWrap),
+		dispathcerChannel: dispathcerChannel,
+		addr:              config.ListenAddr,
 	}
 }
 
@@ -82,7 +83,6 @@ func (processServer *ProcessServer) AcceptConn(conn net.Conn) {
 			var resp def.Response
 			err := coder.ReadStruct(socket, &resp)
 			if err != nil {
-				submitTaskWrap.Status = submitwrap.ERROR
 				log.Println("judgeCore error")
 				break
 			} else {
@@ -99,7 +99,7 @@ func (processServer *ProcessServer) AcceptConn(conn net.Conn) {
 		}
 		socket.Close()
 		processServer.RemoveSubmit(submitTaskWrap)
-		processServer.processChannel <- submitTaskWrap
+		processServer.dispathcerChannel <- submitTaskWrap
 	}(socket)
 }
 

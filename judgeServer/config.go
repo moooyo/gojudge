@@ -2,6 +2,7 @@ package main
 
 import (
 	"./dispatcher"
+	"./executor"
 	"./listenServer"
 	"./processServer"
 	"encoding/json"
@@ -12,6 +13,7 @@ type Config struct {
 	ProcessConfig    processServer.ProcessServerConfig `json:"processConfig"`
 	ListenConfig     listenServer.ListenServerConfig   `json:"listenConfig"`
 	DispatcherConfig dispatcher.DispatcherConfig       `json:"dispatcherConfig"`
+	ExecutorConfig   executor.ExecutorConfig           `json:"executorConfig"`
 }
 
 func ParseConfig(configPath string) (cfg Config, err error) {

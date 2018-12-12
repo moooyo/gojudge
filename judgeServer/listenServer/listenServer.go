@@ -41,7 +41,7 @@ func (listenServer *ListenServer) AcceptConn(conn net.Conn) {
 			socket.Close()
 			return
 		}
-		log.Println("New submit from web front: ", &submit)
+		//		log.Println("New submit from web front: ", &submit)
 		socket.Close()
 		listenServer.dispatcherChannel <- submitwrap.WrapSubmit(&submit)
 	}(socket)

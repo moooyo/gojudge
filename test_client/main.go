@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 1000; i++ {
 		conn, err := moudle.Dial("127.0.0.1:8080")
 		if err != nil {
 			log.Fatal(err)
