@@ -22,6 +22,7 @@ func RunSystem(conf Config) {
 	dispatcher := dispatcher.NewDispatcher(conf.DispatcherConfig, processServer, dispatcherChannel, executorChannel)
 
 	executor := executor.NewExecutor(executorChannel, dispatcherChannel, conf.ExecutorConfig)
+
 	listenServer := listenServer.NewListenServer(conf.ListenConfig, dispatcherChannel)
 
 	executor.Run()
@@ -30,5 +31,5 @@ func RunSystem(conf Config) {
 
 	go RunServer(processServer)
 
-	RunServer(listenServer)
+	listenServer.Run()
 }
