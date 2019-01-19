@@ -1,14 +1,15 @@
-package docker
+package executor
 
 import (
 	"context"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
 	_ "github.com/docker/docker/api/types/strslice"
 	"github.com/docker/docker/client"
-	_ "log"
+	"log"
 	"strconv"
 )
 
@@ -24,7 +25,7 @@ type DockerClientConfig struct {
 	Version  string `json:"version"`
 }
 
-type DockerExecutorConfig struct {
+type DockerContainerConfig struct {
 	NetWork        string `json:"network"`
 	ProcessAddrMap string `json:"processAddrMap"`
 	ProcessPort    int    `json:"processPort"`
@@ -33,6 +34,8 @@ type DockerExecutorConfig struct {
 	Image          string `json:"image"`
 	Cmd            string `json:"cmd"`
 	MountPoint     string `json:"mountPoint"`
+	LabelName      string `json:"labelName"`
+	LabelValue     string `json:"labelValue"`
 }
 
 func NewDockerClient(httpAddr string, version string) (*DockerClient, error) {
@@ -54,6 +57,15 @@ func (dockerClient *DockerClient) String() string {
 type Resource struct {
 	Memory int64
 	cpu    int64
+}
+
+func (dockerClient *DockerClient) RemoveByLabel(labelName, labelValue string) {
+	args := filters.NewArgs()
+	args.Add("label", labelName+"="+labelValue)
+	_, err := dockerClient.ContainersPrune(dockerClient.context, args)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 const fm int64 = 4 * 1024 * 1024
@@ -107,9 +119,11 @@ type DockerExecutor struct {
 	status     int
 	volume     string
 	mountPoint string
+	labelName  string
+	labelValue string
 }
 
-func NewDockerExecutor(submitID int, containerName string, resource Resource, client *DockerClient, config DockerExecutorConfig) *DockerExecutor {
+func NewDockerExecutor(submitID int, containerName string, resource Resource, client *DockerClient, config DockerContainerConfig) *DockerExecutor {
 
 	cmd := make([]string, 0)
 	cmd = append(cmd, config.Cmd)
@@ -129,6 +143,8 @@ func NewDockerExecutor(submitID int, containerName string, resource Resource, cl
 		status:     waiting,
 		volume:     config.Volume,
 		mountPoint: config.MountPoint,
+		labelName:  config.LabelName,
+		labelValue: config.LabelValue,
 	}
 }
 
@@ -162,43 +178,51 @@ func (executor *DockerExecutor) CreateAndStart() error {
 		Mounts: []mount.Mount{mountVolume},
 	}
 
+	labels := make(map[string]string)
+	labels[executor.labelName] = executor.labelValue
 	config := container.Config{
 		Image:        executor.image,
 		Cmd:          executor.cmd,
 		OpenStdin:    true,
-		AttachStdout: true,
-		AttachStdin:  true,
-		AttachStderr: true,
+		AttachStdout: false,
+		AttachStdin:  false,
+		AttachStderr: false,
+		Labels:       labels,
 	}
 
 	_, err := executor.client.ContainerCreate(executor.client.context, &config, hostconfig, &nconfig, executor.container)
 	if err != nil {
-		return err
+		err = executor.Destroy()
+		//		log.Println(err)
+		if err != nil {
+			return err
+		}
+		_, err := executor.client.ContainerCreate(executor.client.context, &config, hostconfig, &nconfig, executor.container)
+		//		log.Println("create ", err)
+		err = executor.client.ContainerStart(executor.client.context, executor.container, types.ContainerStartOptions{})
+		//		log.Println("start", err)
+		if err != nil {
+			return err
+		}
 	}
 
 	executor.client.NetworkConnect(executor.client.context, executor.network, executor.container, &network.EndpointSettings{})
 
-	executor.client.NetworkDisconnect(executor.client.context, "default", executor.container, true)
+	executor.client.NetworkDisconnect(executor.client.context, "bridge", executor.container, true)
 
 	err = executor.client.ContainerStart(executor.client.context, executor.container, types.ContainerStartOptions{})
 	if err != nil {
-		executor.Destroy()
 		return err
 	}
 	executor.status = started
-	return nil
+	return err
 }
 
 func (executor *DockerExecutor) Destroy() error {
-	if executor.status != started {
-		return &DockerExecutorError{
-			msg: "not start",
-		}
-	}
 	err := executor.client.ContainerRemove(executor.client.context, executor.container, types.ContainerRemoveOptions{Force: true})
-	executor.status = stoped
 	if err != nil {
 		return err
 	}
+	executor.status = stoped
 	return nil
 }
