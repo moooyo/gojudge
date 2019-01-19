@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 )
-import "../../def"
+import "github.com/ferriciron/gojudge/def"
 
 func judge(output, stdOutput string) (errno int, err error) {
 	outputinfo, err := os.Stat(output)

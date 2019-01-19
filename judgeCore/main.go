@@ -8,10 +8,10 @@ import (
 	"net"
 	"strconv"
 )
-import "../def"
-import "../moudle"
-import "./complie"
-import "./judge"
+import "github.com/ferriciron/gojudge/def"
+import "github.com/ferriciron/gojudge/moudle"
+import "github.com/ferriciron/gojudge/judgeCore/complie"
+import "github.com/ferriciron/gojudge/judgeCore/judge"
 
 var port *string = flag.String("port", "7777", "JudgeServerPort")
 var submitId *int = flag.Int("submitID", 0, "submitID")

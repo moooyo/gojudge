@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/ferriciron/gojudge/def"
 	"io/ioutil"
 )
-import "../def"
 
 func ParseProblemFile(filename string, problem *def.Problem) (err error) {
 	file, err := ioutil.ReadFile(filename)

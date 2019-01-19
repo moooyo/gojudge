@@ -1,9 +1,9 @@
 package judge
 
 import (
-	"../../def"
 	"context"
 	"fmt"
+	"github.com/ferriciron/gojudge/def"
 	"net"
 	"os"
 	"os/exec"
@@ -11,12 +11,12 @@ import (
 	"time"
 )
 
-func ElfJudge(basePath string,judgeFile string, problem *def.Problem, conn net.Conn) (err error) {
+func ElfJudge(basePath string, judgeFile string, problem *def.Problem, conn net.Conn) (err error) {
 	filename := judgeFile
 	//	fmt.Println(filename)
 	list := problem.JudgeList
 	for i, node := range list {
-		inputFileName := basePath+"/"+node.Input
+		inputFileName := basePath + "/" + node.Input
 		outputFileName := "judge_" + strconv.Itoa(i) + ".output"
 		ct := func() bool {
 			//clean output
@@ -72,4 +72,3 @@ func ElfJudge(basePath string,judgeFile string, problem *def.Problem, conn net.C
 	}
 	return
 }
-

@@ -1,11 +1,11 @@
 package main
 
 import (
-	"./dispatcher"
-	"./executor"
-	"./listenServer"
-	"./processServer"
 	"encoding/json"
+	"github.com/ferriciron/gojudge/judgeServer/dispatcher"
+	"github.com/ferriciron/gojudge/judgeServer/executor"
+	"github.com/ferriciron/gojudge/judgeServer/listenServer"
+	"github.com/ferriciron/gojudge/judgeServer/processServer"
 	"io/ioutil"
 )
 
