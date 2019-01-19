@@ -1,8 +1,8 @@
 package listenServer
 
 import (
-	"../../def"
-	"../submitwrap"
+	"github.com/ferriciron/gojudge/def"
+	"github.com/ferriciron/gojudge/judgeServer/submitwrap"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"

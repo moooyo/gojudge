@@ -1,7 +1,7 @@
 package executor
 
 import (
-	"../submitwrap"
+	"github.com/ferriciron/gojudge/judgeServer/submitwrap"
 	"log"
 	"strconv"
 	"time"

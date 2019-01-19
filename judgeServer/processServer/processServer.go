@@ -1,9 +1,9 @@
 package processServer
 
 import (
-	"../../def"
-	"../../moudle"
-	"../submitwrap"
+	"github.com/ferriciron/gojudge/def"
+	"github.com/ferriciron/gojudge/judgeServer/submitwrap"
+	"github.com/ferriciron/gojudge/moudle"
 	"log"
 	"net"
 	"sync"

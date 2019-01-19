@@ -1,12 +1,12 @@
 package main
 
 import (
-	"./dispatcher"
-	"./executor"
-	"./listenServer"
-	"./processServer"
-	"./submitwrap"
 	"fmt"
+	"github.com/ferriciron/gojudge/judgeServer/dispatcher"
+	"github.com/ferriciron/gojudge/judgeServer/executor"
+	"github.com/ferriciron/gojudge/judgeServer/listenServer"
+	"github.com/ferriciron/gojudge/judgeServer/processServer"
+	"github.com/ferriciron/gojudge/judgeServer/submitwrap"
 )
 
 func RunSystem(conf Config) {

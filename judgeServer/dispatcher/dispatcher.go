@@ -1,9 +1,9 @@
 package dispatcher
 
 import (
-	"../processServer"
-	"../submitwrap"
 	"container/list"
+	"github.com/ferriciron/gojudge/judgeServer/processServer"
+	"github.com/ferriciron/gojudge/judgeServer/submitwrap"
 	"log"
 	_ "strconv"
 )

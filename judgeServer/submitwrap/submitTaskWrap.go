@@ -1,8 +1,8 @@
 package submitwrap
 
 import (
-	"../../def"
 	"fmt"
+	"github.com/ferriciron/gojudge/def"
 	"time"
 )
 
