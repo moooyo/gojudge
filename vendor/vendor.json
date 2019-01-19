@@ -1,0 +1,13 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "3DogKiUssVJjMAg452DPNZ0AmBs=",
+			"path": "github.com/go-ini/ini",
+			"revision": "6ed8d5f64cd79a498d1f3fab5880cc376ce41bbe",
+			"revisionTime": "2019-01-03T01:53:35Z"
+		}
+	],
+	"rootPath": "github.com/ferriciron/gojudge"
+}
