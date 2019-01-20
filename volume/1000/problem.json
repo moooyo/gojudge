@@ -1,0 +1,11 @@
+{
+  "timeLimit":1000,
+  "memorylimit":256,
+  "judgelist":[
+    {
+      "input":"input1.in",
+      "output":"output1.out"
+    }
+  ],
+  "property":0
+}

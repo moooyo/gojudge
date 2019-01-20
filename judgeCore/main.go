@@ -17,8 +17,8 @@ var port *string = flag.String("port", "7777", "JudgeServerPort")
 var submitId *int = flag.Int("submitID", 0, "submitID")
 var adress *string = flag.String("adress", "127.0.0.1", "JugdeServerAdress")
 
-const BasePath = "./problem"
-const CompliePath = "./submit"
+const BasePath = "/home/gojudge/judgeCore/problem"
+const CompliePath = "/home/gojudge/judgeCore/submit"
 
 func main() {
 	//parse args
@@ -64,7 +64,8 @@ func Complie(submit *def.Submit) (problem def.Problem, err error) {
 	log.Println(filename)
 	err = ParseProblemFile(filename, &problem)
 	if err != nil {
-		log.Fatal(fmt.Errorf("Parse problem %s FAILD", filename))
+		log.Fatal(err)
+		//log.Fatal(fmt.Errorf("Parse problem %s FAILD", filename))
 		return
 	}
 	//complie
