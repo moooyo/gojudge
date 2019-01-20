@@ -2,44 +2,46 @@ package main
 
 import (
 	"bytes"
-	"encoding/binary"
 	"flag"
 	"fmt"
 	"log"
 	"net"
-	"unsafe"
+	"strconv"
 )
-import "../def"
-import "../moudle"
-import "./complie"
-import "./judge"
+import "github.com/ferriciron/gojudge/def"
+import "github.com/ferriciron/gojudge/moudle"
+import "github.com/ferriciron/gojudge/judgeCore/complie"
+import "github.com/ferriciron/gojudge/judgeCore/judge"
 
 var port *string = flag.String("port", "7777", "JudgeServerPort")
 var submitId *int = flag.Int("submitID", 0, "submitID")
 var adress *string = flag.String("adress", "127.0.0.1", "JugdeServerAdress")
 
-const BasePath = "./problem"
-const CompliePath = "./submit"
+const BasePath = "/home/gojudge/judgeCore/problem"
+const CompliePath = "/home/gojudge/judgeCore/submit"
 
 func main() {
 	//parse args
 	flag.Parse()
 	serverConn, err := net.Dial("tcp", *adress+":"+*port)
-	socket := moudle.NewSocket(serverConn)
+	socket:=moudle.SocketFromConn(serverConn)
+	//socket := moudle.NewSocket(serverConn)
+	encoder:=moudle.NewEnCoder()
 	defer socket.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
 	buf := new(bytes.Buffer)
-	binary.Write(buf, binary.LittleEndian, uint64(unsafe.Sizeof(*submitId)))
-	binary.Write(buf, binary.LittleEndian, uint64(*submitId))
+	encoder.SendInt(socket,*submitId)
+	decodere:=moudle.NewDecoder()
 	_, err = socket.Write(buf.Bytes())
 	if err != nil {
 		log.Fatal(err)
 	}
 	buf.Reset()
 	var submit def.Submit
-	err = socket.ReadStruct(&submit)
+	//err = socket.ReadStruct(&submit)
+	err=decodere.ReadStruct(socket,&submit)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,10 +49,9 @@ func main() {
 	problem, err := Complie(&submit)
 	var resp def.Response
 	if err != nil {
-		//todo
 		resp.ErrCode = def.ComplierError
 		resp.Msg = []byte(err.Error())
-		socket.WriteStruct(&resp)
+		encoder.SendStruct(socket,&resp)
 		return
 	}
 	//Run
@@ -58,10 +59,13 @@ func main() {
 	return
 }
 func Complie(submit *def.Submit) (problem def.Problem, err error) {
-	filename := BasePath + string(submit.ProblemID) + "/problem.json"
+	filename := BasePath + "/" + strconv.Itoa(submit.ProblemID) + "/problem.json"
+	log.Println(submit.ProblemID)
+	log.Println(filename)
 	err = ParseProblemFile(filename, &problem)
 	if err != nil {
-		log.Fatal(fmt.Errorf("Parse problem %s FAILD", filename))
+		log.Fatal(err)
+		//log.Fatal(fmt.Errorf("Parse problem %s FAILD", filename))
 		return
 	}
 	//complie
@@ -75,17 +79,18 @@ func Complie(submit *def.Submit) (problem def.Problem, err error) {
 }
 
 func RunJudge(submit *def.Submit, problem *def.Problem, conn net.Conn) (err error) {
+	problemPath:="./problem/"+strconv.Itoa(submit.ProblemID)
 	switch submit.Language {
 	default:
 		return fmt.Errorf("gojudge not support this language")
 	case def.CLanguage:
-		err = judge.ElfJudge(CompliePath, problem, conn)
+		err = judge.ElfJudge(problemPath,CompliePath, problem, conn)
 	case def.Cpp11Language:
-		err = judge.ElfJudge(CompliePath, problem, conn)
+		err = judge.ElfJudge(problemPath,CompliePath, problem, conn)
 	case def.Cpp17Language:
-		err = judge.ElfJudge(CompliePath, problem, conn)
+		err = judge.ElfJudge(problemPath,CompliePath, problem, conn)
 	case def.Cpp99Language:
-		err = judge.ElfJudge(CompliePath, problem, conn)
+		err = judge.ElfJudge(problemPath,CompliePath, problem, conn)
 	}
 	return
 }

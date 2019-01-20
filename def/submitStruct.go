@@ -7,17 +7,17 @@ import (
 
 type Submit struct {
 	SubmitID   int    `json:"submitID"`
-	ProblemID  int    `json:"problemId"`
+	ProblemID  int    `json:"problemID"`
 	CodeSource []byte `json:"codeSource"`
 	Language   int    `json:"language"`
 }
 
 const (
-	CLanguage = iota
-	Cpp99Language
-	Cpp11Language
-	Cpp17Language
-	JavaLanguage
+	CLanguage     = 1
+	Cpp99Language = 2
+	Cpp11Language = 3
+	Cpp17Language = 4
+	JavaLanguage  = 5
 )
 
 func (submit *Submit) StructToBytes() (data []byte, err error) {

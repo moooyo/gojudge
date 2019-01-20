@@ -1,11 +1,11 @@
 package listenServer
 
 import (
-	"../../def"
-	"../../moudle"
-	"../submitwrap"
+	"github.com/ferriciron/gojudge/def"
+	"github.com/ferriciron/gojudge/judgeServer/submitwrap"
+	"github.com/gin-gonic/gin"
 	"log"
-	"net"
+	"net/http"
 )
 
 type ListenServerConfig struct {
@@ -13,50 +13,27 @@ type ListenServerConfig struct {
 }
 
 type ListenServer struct {
-	listener          net.Listener
 	addr              string
+	server            *gin.Engine
 	dispatcherChannel chan<- submitwrap.SubmitTaskWrap
 }
 
 func NewListenServer(config ListenServerConfig, dispatcherChannel chan<- submitwrap.SubmitTaskWrap) *ListenServer {
+	gin.SetMode(gin.ReleaseMode)
 	return &ListenServer{
 		addr:              config.ListenAddr,
 		dispatcherChannel: dispatcherChannel,
+		server:            gin.Default(),
 	}
 }
 
-func (listenServer *ListenServer) InitServer(listener net.Listener) error {
-	listenServer.listener = listener
-	return nil
-}
-
-func (listenServer *ListenServer) AcceptConn(conn net.Conn) {
-	log.Println("listenServer incoming")
-	socket := moudle.NewSocket(conn)
-	go func(socket *moudle.Socket) {
+func (listenServer *ListenServer) Run() {
+	listenServer.server.POST("/submit_task", func(c *gin.Context) {
 		var submit def.Submit
-		err := socket.ReadStruct(&submit)
-		if err != nil {
-			log.Println("AcceptConn read ", err)
-			socket.Close()
-			return
-		}
-		log.Println("New submit from web front: ", &submit)
-		log.Println(submit.CodeSource)
-		socket.Close()
+		c.BindJSON(&submit)
+		log.Println(&submit)
 		listenServer.dispatcherChannel <- submitwrap.WrapSubmit(&submit)
-	}(socket)
-}
-
-func (listenServer *ListenServer) HandleAcceptErorr() error {
-	log.Println("HandleAcceptErorr error")
-	return nil
-}
-
-func (listenServer *ListenServer) ExitServer() {
-
-}
-
-func (listenServer *ListenServer) Addr() string {
-	return listenServer.addr
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+	listenServer.server.Run(listenServer.addr)
 }

@@ -1,28 +1,40 @@
 package submitwrap
 
 import (
-	"../../def"
 	"fmt"
+	"github.com/ferriciron/gojudge/def"
+	"time"
 )
 
 type SubmitTaskStatus int
 
 const (
-	OK      SubmitTaskStatus = iota
-	ERROR
+	OK SubmitTaskStatus = iota
+	TIMEOUTERROR
 	WAITING
 	JUDGING
+	EXECUTING
+	EXECUTERROR
+	UNKONW
 )
 
 type SubmitTaskWrap struct {
-	Status SubmitTaskStatus
-	Task   *def.Submit
+	Status      SubmitTaskStatus
+	ExecuteTime time.Duration
+	ProcessTime time.Duration
+	TimeOut     time.Duration
+	ExecCount   int
+	Task        *def.Submit
 }
 
 func WrapSubmit(task *def.Submit) SubmitTaskWrap {
 	return SubmitTaskWrap{
-		Status: WAITING,
-		Task:   task,
+		Status:      WAITING,
+		Task:        task,
+		ExecCount:   0,
+		ExecuteTime: 0,
+		ProcessTime: 0,
+		TimeOut:     0,
 	}
 }
 
@@ -31,8 +43,8 @@ func (submitTaskWrap *SubmitTaskWrap) String() string {
 	switch submitTaskWrap.Status {
 	case OK:
 		status = "OK"
-	case ERROR:
-		status = "ERROR"
+	case TIMEOUTERROR:
+		status = "TIMEOUTERROR"
 	case WAITING:
 		status = "WAITING"
 	case JUDGING:

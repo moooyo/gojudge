@@ -1,10 +1,11 @@
 package main
 
 import (
-	"./dispatcher"
-	"./listenServer"
-	"./processServer"
 	"encoding/json"
+	"github.com/ferriciron/gojudge/judgeServer/dispatcher"
+	"github.com/ferriciron/gojudge/judgeServer/executor"
+	"github.com/ferriciron/gojudge/judgeServer/listenServer"
+	"github.com/ferriciron/gojudge/judgeServer/processServer"
 	"io/ioutil"
 )
 
@@ -12,6 +13,7 @@ type Config struct {
 	ProcessConfig    processServer.ProcessServerConfig `json:"processConfig"`
 	ListenConfig     listenServer.ListenServerConfig   `json:"listenConfig"`
 	DispatcherConfig dispatcher.DispatcherConfig       `json:"dispatcherConfig"`
+	ExecutorConfig   executor.ExecutorConfig           `json:"executorConfig"`
 }
 
 func ParseConfig(configPath string) (cfg Config, err error) {

@@ -1,32 +1,32 @@
 package processServer
 
 import (
-	"../../def"
-	"../../moudle"
-	"../submitwrap"
-	"encoding/binary"
+	"github.com/ferriciron/gojudge/def"
+	"github.com/ferriciron/gojudge/judgeServer/submitwrap"
+	"github.com/ferriciron/gojudge/moudle"
 	"log"
 	"net"
 	"sync"
 )
 
 type ProcessServerConfig struct {
-	ListenAddr string `json:"listenAddr"`
+	ListenAddr  string `json:"listenAddr"`
+	ChannelSize int    `json:"channelSize"`
 }
 
 type ProcessServer struct {
-	taskMap        map[int]submitwrap.SubmitTaskWrap
-	processChannel chan submitwrap.SubmitTaskWrap
-	listener       net.Listener
-	mutex          sync.Mutex
-	addr           string
+	taskMap           map[int]submitwrap.SubmitTaskWrap
+	dispathcerChannel chan<- submitwrap.SubmitTaskWrap
+	listener          net.Listener
+	mutex             sync.Mutex
+	addr              string
 }
 
-func NewProcessServer(config ProcessServerConfig, processChannel chan submitwrap.SubmitTaskWrap) *ProcessServer {
+func NewProcessServer(config ProcessServerConfig, dispathcerChannel chan<- submitwrap.SubmitTaskWrap) *ProcessServer {
 	return &ProcessServer{
-		taskMap:        make(map[int]submitwrap.SubmitTaskWrap),
-		processChannel: processChannel,
-		addr:           config.ListenAddr,
+		taskMap:           make(map[int]submitwrap.SubmitTaskWrap),
+		dispathcerChannel: dispathcerChannel,
+		addr:              config.ListenAddr,
 	}
 }
 
@@ -63,39 +63,43 @@ func (processServer *ProcessServer) InitServer(listener net.Listener) error {
 }
 
 func (processServer *ProcessServer) AcceptConn(conn net.Conn) {
-	log.Println("processServer incoming")
-	socket := moudle.NewSocket(conn)
+	socket := moudle.SocketFromConn(conn)
 	go func(socket *moudle.Socket) {
-		data := make([]byte, 4)
-		_, err := socket.Read(data)
+		coder := moudle.NewDECoderWithSize(1024 * 4)
+		submitid, err := coder.ReadInt(socket)
 		if err != nil {
-			log.Println("processServer: ", err)
+			log.Println(err)
 			socket.Close()
 			return
 		}
-		log.Println(data)
-		submitid := int(binary.LittleEndian.Uint32(data))
-		log.Println(submitid)
 		submitTaskWrap, ok := processServer.CheckoutSubmit(submitid)
 		if !ok {
 			log.Println("processServer access a bad submit")
 			socket.Close()
 			return
 		}
+		coder.SendStruct(socket, submitTaskWrap.Task)
 		for {
 			var resp def.Response
-			err := socket.ReadStruct(&resp)
+			err := coder.ReadStruct(socket, &resp)
 			if err != nil {
-				submitTaskWrap.Status = submitwrap.ERROR
 				log.Println("judgeCore error")
 				break
 			} else {
 				log.Println(&resp)
+				if resp.ErrCode != def.AcceptCode {
+
+				} else if resp.AllNode != resp.JudgeNode {
+					continue
+				} else {
+				}
+				submitTaskWrap.Status = submitwrap.OK
+				break
 			}
 		}
 		socket.Close()
 		processServer.RemoveSubmit(submitTaskWrap)
-		processServer.processChannel <- submitTaskWrap
+		processServer.dispathcerChannel <- submitTaskWrap
 	}(socket)
 }
 

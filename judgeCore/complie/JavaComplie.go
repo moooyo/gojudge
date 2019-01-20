@@ -1,10 +1,10 @@
 package complie
 
 import (
-	"../../def"
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/ferriciron/gojudge/def"
 	"io/ioutil"
 	"os"
 	"os/exec"

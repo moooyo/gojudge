@@ -1,25 +1,35 @@
 package main
 
 import (
-	"./dispatcher"
-	"./listenServer"
-	"./processServer"
-	"./submitwrap"
+	"fmt"
+	"github.com/ferriciron/gojudge/judgeServer/dispatcher"
+	"github.com/ferriciron/gojudge/judgeServer/executor"
+	"github.com/ferriciron/gojudge/judgeServer/listenServer"
+	"github.com/ferriciron/gojudge/judgeServer/processServer"
+	"github.com/ferriciron/gojudge/judgeServer/submitwrap"
 )
 
 func RunSystem(conf Config) {
 
+	fmt.Println(conf)
+
 	dispatcherChannel := make(chan submitwrap.SubmitTaskWrap, conf.DispatcherConfig.DispatchChannelSize)
 
-	processChannel := make(chan submitwrap.SubmitTaskWrap, conf.DispatcherConfig.Ndocker)
+	processServer := processServer.NewProcessServer(conf.ProcessConfig, dispatcherChannel)
 
-	processServer := processServer.NewProcessServer(conf.ProcessConfig, processChannel)
-	dispatcher := dispatcher.NewDispatcher(conf.DispatcherConfig, processServer, dispatcherChannel, processChannel)
+	executorChannel := make(chan submitwrap.SubmitTaskWrap, conf.ExecutorConfig.ChannelSize)
 
-	go dispatcher.Run()
-	go RunServer(processServer)
+	dispatcher := dispatcher.NewDispatcher(conf.DispatcherConfig, processServer, dispatcherChannel, executorChannel)
+
+	executor := executor.NewExecutor(executorChannel, dispatcherChannel, conf.ExecutorConfig)
 
 	listenServer := listenServer.NewListenServer(conf.ListenConfig, dispatcherChannel)
 
-	RunServer(listenServer)
+	executor.Run()
+
+	go dispatcher.Run()
+
+	go RunServer(processServer)
+
+	listenServer.Run()
 }
